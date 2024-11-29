@@ -17,7 +17,7 @@ class DuplicatesHandler:
     def __init__(self,
                  dataset_path: str,
                  dataset_type: Literal["dir", "yolo"] = "dir",
-                 split: Literal["train", "valid", "test", "all"] = "all",
+                 split: Literal["train", "valid", "test"] | list[Literal["train", "valid", "test"]] = "all",
                  similarity_threshold: float = 0.99,
                  yaml_filename: str = "data.yaml"):
         """
@@ -37,17 +37,26 @@ class DuplicatesHandler:
         if self.dataset_type not in ["dir", "yolo"]:
             raise ValueError("dataset_type должен быть 'dir' или 'yolo'")
 
-        if split not in ["train", "valid", "test", "all"]:
-            raise ValueError("split должен быть 'train', 'valid', 'test' или 'all'")
+        if isinstance(split, str):
+            split = [split]
+
+        elif isinstance(split, list):
+            if not all(s in ["train", "valid", "test"] for s in split):
+                raise ValueError("split должен быть 'train', 'valid', 'test' или список из них")
+
+        else:
+            raise ValueError("split должен быть 'train', 'valid', 'test' или список из них")
+
+        if "all" in split:
+            split = ['train', 'valid', 'test']
 
         self._load_dataset(split)
 
-    def _load_dataset(self, split: Literal["train", "valid", "test", "all"]) -> None:
+    def _load_dataset(self, splits: list[Literal["train", "valid", "test"]]) -> None:
         """Загружает датасет в fiftyone."""
         if self.dataset_type == "yolo":
             self.dataset = fo.Dataset()
 
-            splits = ['train', 'valid', 'test'] if split == 'all' else [split]
             for split in splits:
                 split_images_path = os.path.join(self.dataset_path, split, 'images')
 
@@ -160,19 +169,22 @@ class DuplicatesHandler:
             start_idx = 1 if keep_first else 0
 
             for img_path in group[start_idx :]:
-                # Удаляем изображение
+                # Находим sample по пути к файлу
+                view = self.dataset.match({"filepath": img_path})
+                sample = view.first()
+                if sample:
+                    # Удаляем sample из датасета по ID
+                    self.dataset.delete_samples(sample.id)
+
+                # Удаляем физические файлы
                 full_path = os.path.join(self.dataset_path, img_path)
                 if os.path.exists(full_path):
                     os.remove(full_path)
 
-                # Если это YOLO датасет, удаляем также соответствующий label-файл
                 if self.dataset_type == "yolo":
                     label_path = Path(full_path).with_suffix('.txt')
                     if label_path.exists():
                         label_path.unlink()
-
-                # Удаляем образец из датасета fiftyone
-                self.dataset.delete_samples(img_path)
 
         self.dataset.save()
 

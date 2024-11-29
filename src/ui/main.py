@@ -2,7 +2,7 @@ from datetime import datetime
 
 import cv2
 from PyQt6.QtGui import QImage, QPixmap
-from PyQt6.QtCore import QTimer
+from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtWidgets import QLabel, QWidget, QComboBox
 from PyQt6.QtWidgets import QHBoxLayout, QHeaderView
 from PyQt6.QtWidgets import QMainWindow, QPushButton
@@ -21,15 +21,63 @@ class ProdDetectionApp(QMainWindow):
     def __init__(self, detector_model_path: str):
         super().__init__()
 
-        self.setWindowTitle("Детекция продуктов")
-        self.setGeometry(100, 100, 800, 600)
+        self.setWindowTitle("ProdEye")
+        self.showMaximized()
+        self.setFixedSize(self.size())
+        self.setStyleSheet("""
+            QMainWindow {
+                background: qlineargradient(
+                    spread:pad,
+                    x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #FCFDFE,
+                    stop:1 #739F3d
+                );
+            }
 
+            QLabel {
+                color: #2C3E50;
+                font-size: 14px;
+            }
+
+            QPushButton {
+                background-color: #739F3d;
+                color: white;
+                border: none;
+                padding: 5px;
+                border-radius: 3px;
+            }
+
+            QPushButton:hover {
+                background-color: #7aa802;
+            }
+
+            QComboBox {
+                background-color: #fcfdfe;
+                border: 1px solid #ee693f;
+                border-radius: 3px;
+                padding: 5px;
+            }
+
+            QTableWidget {
+                background-color: #fcfdfe;
+                border: 1px solid #ee693f;
+                border-radius: 5px;
+                alternate-background-color: #F0F0F0;
+                gridline-color: #E0E0E0;
+            }
+
+            QHeaderView::section {
+                background-color: #ee693f;
+                color: white;
+                padding: 20px;
+            }
+        """)
         self.stream = VideoStream()
         self.detector = ProdDetector(detector_model_path)
         self.matcher = ProdMatcher(self.detector)
 
         self.basket = Basket()
-        self.verification_timeout = 10  # секунд на проверку товара
+        self.verification_timeout = 10
         self.last_verification_time = None
 
         self.init_ui()
@@ -43,19 +91,35 @@ class ProdDetectionApp(QMainWindow):
         central_widget = QWidget()
         main_layout = QHBoxLayout()
 
-        # Левая панель с видео
-        video_panel = QVBoxLayout()
-        self.video_label = QLabel()
-        self.video_label.setMinimumSize(640, 480)  # Минимальный размер видео
-        video_panel.addWidget(self.video_label)
+        # Левая панель
+        video_container = QWidget()
+        video_container.setStyleSheet("""
+            border: 3px solid #ee693f;
+            border-radius: 5px;
+            padding: 10px;
+        """)
+        video_panel = QVBoxLayout(video_container)
 
-        # Правая панель с корзиной
-        basket_panel = QVBoxLayout()
+        self.video_label = QLabel()
+        self.video_label.setMinimumSize(640, 480)
+        self.video_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.video_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
+        video_panel.addStretch(1)
+        video_panel.addWidget(self.video_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        video_panel.addStretch(1)
+
+        video_panel.setContentsMargins(10, 10, 10, 10)
+
+        basket_container = QWidget()
+
+        basket_panel = QVBoxLayout(basket_container)
 
         # Выбор продукта (имитация сканера)
         scanner_group = QWidget()
         scanner_layout = QVBoxLayout()
-        scanner_layout.setSpacing(5)  # Уменьшаем расстояние между элементами
+        scanner_layout.setSpacing(5)
 
         self.fruit_selector = QComboBox()
         self.fruit_selector.addItems(self.detector.classes.values())
@@ -77,26 +141,21 @@ class ProdDetectionApp(QMainWindow):
         self.basket_table.setHorizontalHeaderLabels(["Товар", "Статус", "Время"])
 
         # Настройка таблицы
-        self.basket_table.horizontalHeader().setStretchLastSection(True)  # Растягиваем последнюю колонку
-        self.basket_table.horizontalHeader().setSectionResizeMode(
-            QHeaderView.ResizeMode.ResizeToContents)  # Автоматическая ширина колонок
-        self.basket_table.verticalHeader().setSectionResizeMode(
-            QHeaderView.ResizeMode.ResizeToContents)  # Автоматическая высота строк
-        self.basket_table.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)  # Плавная прокрутка
+        self.basket_table.horizontalHeader().setStretchLastSection(True)
+        self.basket_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        self.basket_table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        self.basket_table.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
 
-        # Устанавливаем политику размера для таблицы
         self.basket_table.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         basket_panel.addWidget(self.basket_table)
 
-        # Добавляем панели в главный layout с указанием пропорций
-        main_layout.addLayout(video_panel, stretch=2)
-        main_layout.addLayout(basket_panel, stretch=1)
+        main_layout.addWidget(video_container, stretch=2)
+        main_layout.addWidget(basket_container, stretch=1)
 
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
 
-        # Устанавливаем минимальный размер окна
         self.setMinimumSize(1024, 768)
 
     def scan_product(self):
@@ -126,12 +185,11 @@ class ProdDetectionApp(QMainWindow):
         if self.basket.current_item:
             current_time = datetime.now()
 
-            # Проверяем таймаут
             if (current_time - self.last_verification_time).seconds > self.verification_timeout:
                 self.basket.current_item.status = ProductStatus.EXPIRED
                 self.basket.current_item = None
+
             else:
-                # Получаем количество уже проверенных товаров этого типа
                 verified_counts = self.basket.get_verified_counts()
                 verified_count = verified_counts[self.basket.current_item.product_name]
 
@@ -143,8 +201,9 @@ class ProdDetectionApp(QMainWindow):
 
             self.update_basket_table()
 
-        # Отображение кадра
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        scaled_frame = cv2.resize(frame, (1280, 960), interpolation=cv2.INTER_AREA)
+
+        rgb_frame = cv2.cvtColor(scaled_frame, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb_frame.shape
         bytes_per_line = ch * w
         qt_image = QImage(rgb_frame.data, w, h, bytes_per_line, QImage.Format.Format_RGB888)
