@@ -19,13 +19,19 @@ class DuplicatesHandler:
                  dataset_type: Literal["dir", "yolo"] = "dir",
                  split: Literal["train", "valid", "test"] | list[Literal["train", "valid", "test"]] = "all",
                  similarity_threshold: float = 0.99,
-                 yaml_filename: str = "data.yaml"):
+                 yaml_filename: str = "data.yaml",
+                 device: Literal["cpu", "gpu"] = "gpu",
+                 embeddings_batch_size: int = 64,
+                 similarity_batch_size: int = 1024):
         """
         Args:
             dataset_path: путь к датасету (абсолютный или относительный)
             dataset_type: тип датасета ("dir" или "yolo")
             similarity_threshold: порог схожести изображений (0-1)
             yaml_filename: имя yaml файла для YOLO датасета
+            device: устройство для обучения ("cpu" или "gpu")
+            embeddings_batch_size: размер батча для вычисления эмбеддингов
+            similarity_batch_size: размер батча для вычисления матрицы сходства
         """
         self.dataset_path = str(Path(dataset_path).resolve())
         self.dataset_type = dataset_type.lower()
@@ -33,6 +39,9 @@ class DuplicatesHandler:
         self.yaml_filename = yaml_filename
         self.dataset = None
         self.duplicates = None
+        self.device = device.lower()
+        self.embeddings_batch_size = embeddings_batch_size
+        self.similarity_batch_size = similarity_batch_size
 
         if self.dataset_type not in ["dir", "yolo"]:
             raise ValueError("dataset_type должен быть 'dir' или 'yolo'")
@@ -49,6 +58,10 @@ class DuplicatesHandler:
 
         if "all" in split:
             split = ['train', 'valid', 'test']
+
+        if self.device == "gpu" and not torch.cuda.is_available():
+            print("GPU недоступна, запуск будет осуществлен на CPU")
+            self.device = "cpu"
 
         self._load_dataset(split)
 
@@ -83,14 +96,33 @@ class DuplicatesHandler:
         """
         self.dataset.add_sample_field("duplicate_group", fo.IntField, description="Индекс группы дубликатов")
 
-        model = foz.load_zoo_model("mobilenet-v2-imagenet-torch")
+        model = foz.load_zoo_model("resnet18-imagenet-torch", batch_size=self.embeddings_batch_size)
         embeddings = self.dataset.compute_embeddings(model)
 
-        if torch.cuda.is_available():
-            embeddings_tensor = torch.tensor(embeddings).cuda()
-            similarity_matrix = torch.nn.functional.cosine_similarity(embeddings_tensor.unsqueeze(1),
-                                                                      embeddings_tensor.unsqueeze(0),
-                                                                      dim=2).cpu().numpy()
+        if torch.cuda.is_available() and self.device == "gpu":
+
+            embeddings_tensor = torch.tensor(embeddings)
+            similarity_matrix = np.zeros((len(embeddings), len(embeddings)))
+
+            for i in tqdm(range(0, len(embeddings), self.similarity_batch_size), desc="Вычисление сходства на GPU"):
+                batch_end = min(i + self.similarity_batch_size, len(embeddings))
+                batch = embeddings_tensor[i : batch_end].cuda()
+
+                for j in range(0, len(embeddings), self.similarity_batch_size):
+                    j_end = min(j + self.similarity_batch_size, len(embeddings))
+                    other_batch = embeddings_tensor[j : j_end].cuda()
+
+                    batch_norm = torch.nn.functional.normalize(batch, p=2, dim=1)
+                    other_norm = torch.nn.functional.normalize(other_batch, p=2, dim=1)
+                    sim = torch.mm(batch_norm, other_norm.t()).cpu().numpy()
+
+                    similarity_matrix[i : batch_end, j : j_end] = sim
+
+                    del other_batch
+                    torch.cuda.empty_cache()
+
+                del batch
+                torch.cuda.empty_cache()
         else:
             with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
                 similarity_matrix = np.zeros((len(embeddings), len(embeddings)))
@@ -169,14 +201,12 @@ class DuplicatesHandler:
             start_idx = 1 if keep_first else 0
 
             for img_path in group[start_idx :]:
-                # Находим sample по пути к файлу
                 view = self.dataset.match({"filepath": img_path})
                 sample = view.first()
+
                 if sample:
-                    # Удаляем sample из датасета по ID
                     self.dataset.delete_samples(sample.id)
 
-                # Удаляем физические файлы
                 full_path = os.path.join(self.dataset_path, img_path)
                 if os.path.exists(full_path):
                     os.remove(full_path)

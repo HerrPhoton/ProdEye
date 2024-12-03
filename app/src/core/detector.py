@@ -2,8 +2,8 @@ import numpy as np
 from ultralytics import YOLO
 from ultralytics.engine.results import Results
 
-from .config import settings
-from .stream import VideoStream
+from app.configs.config import settings
+from app.src.core.stream import VideoStream
 
 
 class ProdDetector:

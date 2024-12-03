@@ -10,10 +10,10 @@ from PyQt6.QtWidgets import QSizePolicy, QVBoxLayout
 from PyQt6.QtWidgets import QTableWidget, QTableWidgetItem
 from PyQt6.QtWidgets import QAbstractItemView
 
-from ..core.basket import Basket, ProductStatus
-from ..core.stream import VideoStream
-from ..core.matcher import ProdMatcher
-from ..core.detector import ProdDetector
+from app.src.core.basket import Basket, ProductStatus
+from app.src.core.stream import VideoStream
+from app.src.core.matcher import ProdMatcher
+from app.src.core.detector import ProdDetector
 
 
 class ProdDetectionApp(QMainWindow):

@@ -98,6 +98,29 @@ class YOLODatasetMerger:
             for file in src_dir.glob('*.*'):
                 dst = self.output_paths[split][data_type] / file.name
 
+                if data_type == 'labels':
+                    # Получаем индекс класса в общем списке классов
+                    class_idx = sorted(self.classes).index(class_name)
+
+                    # Читаем содержимое файла меток
+                    with open(file) as f:
+                        lines = f.readlines()
+
+                    # Заменяем первое число (индекс класса) в каждой строке
+                    modified_lines = []
+                    for line in lines:
+                        parts = line.strip().split()
+                        if parts:
+                            parts[0] = str(class_idx)  # Заменяем индекс класса
+                            modified_lines.append(' '.join(parts) + '\n')
+
+                    # Записываем модифицированные метки в новый файл
+                    with open(dst, 'w') as f:
+                        f.writelines(modified_lines)
+
+                    self.stats[split][data_type] += 1
+                    continue
+
                 # Копируем файл и получаем информацию о результате
                 copied, final_path = self._copy_file(file, dst)
 
@@ -160,7 +183,7 @@ class YOLODatasetMerger:
             'names': sorted(self.classes)
         }
 
-        with open(self.output_dir / 'dataset.yaml', 'w') as f:
+        with open(self.output_dir / 'data.yaml', 'w') as f:
             yaml.dump(yaml_content, f, sort_keys=False)
 
     def print_stats(self):

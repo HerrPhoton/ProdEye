@@ -1,6 +1,10 @@
 dataset/
+build/
+dist/
 logs/
 models/
 runs/
 __pycache__/
 .env
+*.spec
+*.pt

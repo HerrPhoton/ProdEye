@@ -1,9 +1,13 @@
 import sys
+from pathlib import Path
+
+root_dir = Path(__file__).parent.parent.parent
+sys.path.append(str(root_dir))
 
 from PyQt6.QtWidgets import QApplication
 
-from .ui.main import ProdDetectionApp
-from .core.config import settings
+from app.src.ui.main import ProdDetectionApp
+from app.configs.config import settings
 
 
 def main():

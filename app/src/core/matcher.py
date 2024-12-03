@@ -2,7 +2,7 @@ from collections import Counter
 
 import numpy as np
 
-from .detector import ProdDetector
+from app.src.core.detector import ProdDetector
 
 
 class ProdMatcher:
