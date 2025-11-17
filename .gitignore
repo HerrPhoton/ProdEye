@@ -1,10 +1,24 @@
-dataset/
-build/
-dist/
-logs/
-models/
-runs/
+# Datasets
+datasets/
+
+# Virtual enviroment
+.venv/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Python
 __pycache__/
+
+# Environment variables
 .env
-*.spec
+
+# Weights
 *.pt
+
+# Experiments & Logs
+runs/
+logs/
