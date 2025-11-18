@@ -1,10 +1,10 @@
-from .pair import YOLOPairHandler
 from .path import PathHandler
 from .image import YOLOImageHandler
 from .label import YOLOLabelHandler
+from .sample import YOLOSampleHandler
 
 __all__ = [
-    "YOLOPairHandler",
+    "YOLOSampleHandler",
     "YOLOImageHandler",
     "YOLOLabelHandler",
     "PathHandler",

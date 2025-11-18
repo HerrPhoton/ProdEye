@@ -1,4 +1,4 @@
-IMAGE_EXTENSIONS: tuple[str, ...] = (".png", ".jpg", ".jpeg", ".bmp")
+IMAGE_EXTENSIONS: tuple[str, ...] = (".png", ".jpg", ".jpeg")
 LABEL_EXTENSIONS: tuple[str, ...] = (".txt",)
 
 

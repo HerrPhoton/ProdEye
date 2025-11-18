@@ -24,6 +24,8 @@ class Split:
             self.labels_dir,
             self.labels_ext,
         )
+        self.images_dir = Path(self.images_dir)
+        self.labels_dir = Path(self.labels_dir)
 
     def iter_images(self) -> Generator[Path, None, None]:
         """Итерируется по изображениям в сплите.
@@ -39,7 +41,7 @@ class Split:
         """
         yield from self._label_manager.iter_files()
 
-    def iter_items(self) -> Generator[tuple[Path, Path], None, None]:
+    def iter_samples(self) -> Generator[tuple[Path, Path], None, None]:
         """Итерируется по парам изображение-метка (если оба существуют).
 
         :yield Generator[tuple[Path, Path], None, None]: путь до изображения, путь до метки
@@ -49,17 +51,12 @@ class Split:
             if label_path.exists():
                 yield image_path, label_path
 
-    def _get_label_path(self, image_path: Path) -> Path:
-        """Возвращает путь к метке для указанного изображения.
-
-        :param Path image_path: Путь до изображения
-        :return Path: Путь до метки
-        """
-        rel = image_path.relative_to(self.images_dir)
-        return self.labels_dir / rel.with_suffix(".txt")
-
     def exists(self) -> bool:
-        """Проверяет существование директорий сплита."""
+        """Проверяет существование директорий сплита.
+
+        :return bool: True, если директории `self.images_dir` и `self.labels_dir` существуют;
+                      False - иначе
+        """
         return self.images_dir.exists() and self.labels_dir.exists()
 
     def count_images(self) -> int:
@@ -76,9 +73,18 @@ class Split:
         """
         return sum(1 for _ in self.iter_labels())
 
-    def count_items(self) -> int:
+    def count_samples(self) -> int:
         """Возвращает количество пар изображение-метка в сплите.
 
         :return int: Количество пар изображение-метка
         """
-        return sum(1 for _ in self.iter_items())
+        return sum(1 for _ in self.iter_samples())
+
+    def _get_label_path(self, image_path: Path) -> Path:
+        """Возвращает путь к метке для указанного изображения.
+
+        :param Path image_path: Путь до изображения
+        :return Path: Путь до метки
+        """
+        rel = image_path.relative_to(self.images_dir)
+        return self.labels_dir / rel.with_suffix(".txt")

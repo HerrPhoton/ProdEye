@@ -1,7 +1,7 @@
 from .bbox import BBox
-from .yolo import YOLODataset
 from .label import YOLOLabel
 from .split import Split
+from .dataset import YOLODataset
 
 __all__ = [
     "Split",
