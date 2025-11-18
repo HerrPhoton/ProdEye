@@ -2,7 +2,7 @@ from pathlib import Path
 from dataclasses import dataclass
 from collections.abc import Iterable, Generator
 
-from src.utils import IMAGE_EXTENSIONS, LABEL_EXTENSIONS, PathLike
+from ...utils import IMAGE_EXTENSIONS, LABEL_EXTENSIONS, PathLike
 
 
 @dataclass

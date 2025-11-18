@@ -4,9 +4,8 @@ from collections.abc import Generator
 
 import yaml
 
-from src.utils import PathLike
-
 from .split import Split
+from ...utils import PathLike
 
 
 @dataclass

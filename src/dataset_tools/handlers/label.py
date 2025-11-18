@@ -1,8 +1,7 @@
 from collections.abc import Iterable
 
-from src.utils import LABEL_EXTENSIONS, PathLike
-
 from .path import PathHandler
+from ...utils import LABEL_EXTENSIONS, PathLike
 from ..structures import BBox, YOLOLabel
 
 

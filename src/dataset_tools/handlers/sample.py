@@ -2,8 +2,7 @@ from typing import NamedTuple
 from pathlib import Path
 from collections.abc import Iterable, Generator
 
-from src.utils import IMAGE_EXTENSIONS, LABEL_EXTENSIONS, PathLike, normalize_to_paths
-
+from ...utils import IMAGE_EXTENSIONS, LABEL_EXTENSIONS, PathLike, normalize_to_paths
 from ..structures import Split, YOLODataset
 
 

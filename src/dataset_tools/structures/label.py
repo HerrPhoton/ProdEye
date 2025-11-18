@@ -1,9 +1,8 @@
 from pathlib import Path
 from dataclasses import field, dataclass
 
-from src.utils import PathLike
-
 from .bbox import BBox
+from ...utils import PathLike
 
 
 @dataclass

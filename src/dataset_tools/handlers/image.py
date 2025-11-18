@@ -3,9 +3,8 @@ from collections.abc import Iterable
 
 from PIL import Image
 
-from src.utils import IMAGE_EXTENSIONS, PathLike
-
 from .path import PathHandler
+from ...utils import IMAGE_EXTENSIONS, PathLike
 
 
 class YOLOImageHandler(PathHandler):

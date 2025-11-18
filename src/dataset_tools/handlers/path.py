@@ -1,7 +1,7 @@
 from pathlib import Path
 from collections.abc import Iterable, Generator
 
-from src.utils import PathLike, normalize_to_paths, validate_paths_exist
+from ...utils import PathLike, normalize_to_paths, validate_paths_exist
 
 
 class PathHandler:
