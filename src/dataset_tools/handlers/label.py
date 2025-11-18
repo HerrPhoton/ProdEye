@@ -136,3 +136,30 @@ class YOLOLabelHandler(PathHandler):
                 removed_files.append(str(label_path))
 
         return removed_files
+
+    def rename_labels(self, new_name: str, start_idx: int = 0, zero_padding: int = 0) -> list[tuple[str, str]]:
+        """Переименовывает метки по паттерну `new_name_{idx}`.
+
+        :param str new_name: Базовое имя для новых файлов
+        :param int start_idx: Начальный индекс
+        :param int zero_padding: Количество нулей для паддинга индекса
+        :return list[tuple[str, str]]: Список переименованных меток (старое название, новое название)
+        """
+        renamed = []
+        idx = start_idx
+
+        for label_path in self.iter_files():
+            # Паддинг индекса
+            idx_str = str(idx).zfill(zero_padding)
+
+            # Новое имя для метки
+            new_label_name = f"{new_name}_{idx_str}{label_path.suffix}"
+            new_label_path = label_path.parent / new_label_name
+
+            # Переименовываем метку
+            label_path.rename(new_label_path)
+
+            renamed.append((str(label_path), str(new_label_path)))
+            idx += 1
+
+        return renamed

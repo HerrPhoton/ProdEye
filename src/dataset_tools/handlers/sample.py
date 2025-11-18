@@ -108,7 +108,7 @@ class YOLOSampleHandler:
 
         :param str new_name: Базовое имя для новых файлов
         :param int start_idx: Начальный индекс
-         :param int zero_padding: Количество нулей для паддинга индекса
+        :param int zero_padding: Количество нулей для паддинга индекса
         :return list[RenamedSample]: Список переименованных сэмплов
         """
         renamed = []
