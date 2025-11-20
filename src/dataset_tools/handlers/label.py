@@ -60,27 +60,31 @@ class YOLOLabelHandler(PathHandler):
 
         return incorrect
 
-    def set_classes(self, new_class: int) -> list[str]:
+    def set_classes(self, new_classes: dict[int, int]) -> list[str]:
         """Устанавливает для каждого bbox в метках `self.labels_dir` указанный класс.
 
-        :param int new_class: Индекс нового класса
+        :param dict[int, int] new_classes: Словарь, в котором ключ - это индекс класса для замены,
+                                           а значение - индекс нового класса
         :return list[str]: Список файлов, в которых были заменены классы
         """
         changed_files = []
         for label_path in self.iter_files():
             label = YOLOLabel(label_path)
 
-            if any(b.class_id != new_class for b in label.bboxes):
-                label.bboxes = [BBox(new_class, b.x, b.y, b.w, b.h) for b in label.bboxes]
+            original_ids = [b.class_id for b in label.bboxes]
+            label.bboxes = [BBox(new_classes.get(b.class_id, b.class_id), b.x, b.y, b.w, b.h) for b in label.bboxes]
+
+            new_ids = [b.class_id for b in label.bboxes]
+            if original_ids != new_ids:
                 label.write()
                 changed_files.append(str(label_path))
 
         return changed_files
 
-    def remove_classes(self, classes: list[int]) -> list[str]:
+    def remove_classes(self, classes: Iterable[int]) -> list[str]:
         """Удаляет bbox'ы в метках `self.labels_dir` с указанными классами.
 
-        :param list[int] classes: Индекс классов для удаления
+        :param Iterable[int] classes: Индекс классов для удаления
         :return list[str]: Список файлов, в которых были удалены bbox'ы
         """
         changed_files = []
