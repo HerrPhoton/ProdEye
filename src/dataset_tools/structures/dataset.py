@@ -1,5 +1,6 @@
+from typing import Any
 from pathlib import Path
-from dataclasses import field, dataclass
+from dataclasses import dataclass
 from collections.abc import Generator
 
 import yaml
@@ -11,9 +12,10 @@ from ...utils import PathLike
 @dataclass
 class YOLODataset:
     root: Path
-    splits: dict[str, Split] = field(default_factory=dict)
-    num_classes: int | None = None
-    class_names: list[str] | None = None
+    data_yaml: Path
+    num_classes: int
+    class_names: dict[int, str]
+    splits: dict[str, Split]
 
     @classmethod
     def from_yaml(cls, data_yaml: PathLike) -> 'YOLODataset':
@@ -22,6 +24,12 @@ class YOLODataset:
 
         with open(data_yaml) as file:
             data = yaml.safe_load(file)
+
+        class_names = data["names"]
+        num_classes = data["nc"]
+
+        if isinstance(class_names, list):
+            class_names = dict(enumerate(class_names))
 
         splits: dict[str, Split] = {}
         for split_name in ("train", "val", "test"):
@@ -41,9 +49,10 @@ class YOLODataset:
 
         return cls(
             root=root,
+            data_yaml=data_yaml,
+            num_classes=num_classes,
+            class_names=class_names,
             splits=splits,
-            num_classes=data.get("nc"),
-            class_names=data.get("names"),
         )
 
     @staticmethod
@@ -60,6 +69,32 @@ class YOLODataset:
             return self.splits[name]
         except KeyError:
             raise KeyError(f"Сплит {name!r} отсутствует в датасете")
+
+    def write_data_yaml(self, output_path: PathLike | None = None) -> str:
+        """Создает yaml-файл, содержащий данные из атрибутов класса.
+
+        Если `output_path=None`, то создает/перезаписывает data.yaml по пути `self.data_yaml`.
+
+        :param PathLike output_path: Путь до data.yaml
+        :return str: Путь до созданного data.yaml
+        """
+        if output_path is not None:
+            yaml_path = output_path
+        else:
+            yaml_path = self.root / "data.yaml"
+
+        with open(yaml_path, "w") as data_yaml:
+            data: dict[str, Any] = {}
+
+            for split in self.splits.values():
+                data[split.name] = str(split.images_dir)
+
+            data["nc"] = self.num_classes
+            data["names"] = self.class_names
+
+            yaml.dump(data, data_yaml, sort_keys=False)
+
+        return str(yaml_path)
 
     def iter_images(self) -> Generator[Path, None, None]:
         """Итерируется по изображениям во всех сплитах.
