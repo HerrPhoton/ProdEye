@@ -81,7 +81,7 @@ class YOLODataset:
         if output_path is not None:
             yaml_path = output_path
         else:
-            yaml_path = self.root / "data.yaml"
+            yaml_path = self.data_yaml
 
         with open(yaml_path, "w") as data_yaml:
             data: dict[str, Any] = {}
