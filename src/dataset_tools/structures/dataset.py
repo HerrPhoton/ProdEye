@@ -96,6 +96,14 @@ class YOLODataset:
 
         return str(yaml_path)
 
+    def count_samples(self) -> dict[str, int]:
+        """Возвращает количество сэмплов для каждого сплита.
+
+        :return dict[str, int]: Словарь, в котором ключ - название сплита, а значение - количество сэмплов
+        """
+        counts = {name: split.count_samples() for name, split in self.splits.items()}
+        return counts
+
     def iter_images(self) -> Generator[Path, None, None]:
         """Итерируется по изображениям во всех сплитах.
 
