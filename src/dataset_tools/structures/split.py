@@ -24,8 +24,8 @@ class Split:
             self.labels_dir,
             self.labels_ext,
         )
-        self.images_dir = Path(self.images_dir)
-        self.labels_dir = Path(self.labels_dir)
+        self.images_dir = Path(self.images_dir).resolve()
+        self.labels_dir = Path(self.labels_dir).resolve()
 
     def iter_images(self) -> Generator[Path, None, None]:
         """Итерируется по изображениям в сплите.
