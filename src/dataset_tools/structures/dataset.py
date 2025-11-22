@@ -19,6 +19,11 @@ class YOLODataset:
 
     @classmethod
     def from_yaml(cls, data_yaml: PathLike) -> 'YOLODataset':
+        """Создает экземпляр YOLODataset на основе конфигурации data.yaml.
+
+        :param PathLike data_yaml: Путь до data.yaml датасета
+        :return YOLODataset: Инициализированный экземпляр YOLODataset со сплитами из data.yaml
+        """
         data_yaml = Path(data_yaml).resolve()
         root = data_yaml.parent.resolve()
 
@@ -42,7 +47,6 @@ class YOLODataset:
 
             labels_path = cls.get_labels_dir(images_path)
             splits[split_name] = Split(
-                name=split_name,
                 images_dir=images_path,
                 labels_dir=labels_path,
             )
@@ -86,8 +90,8 @@ class YOLODataset:
         with open(yaml_path, "w") as data_yaml:
             data: dict[str, Any] = {}
 
-            for split in self.splits.values():
-                data[split.name] = str(split.images_dir)
+            for split_name, split in self.splits.items():
+                data[split_name] = str(split.images_dir)
 
             data["nc"] = self.num_classes
             data["names"] = self.class_names

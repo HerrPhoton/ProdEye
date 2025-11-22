@@ -7,7 +7,6 @@ from ...utils import IMAGE_EXTENSIONS, LABEL_EXTENSIONS, PathLike
 
 @dataclass
 class Split:
-    name: str
     images_dir: PathLike
     labels_dir: PathLike
     image_ext: Iterable[str] = IMAGE_EXTENSIONS
@@ -16,6 +15,10 @@ class Split:
     def __post_init__(self):
         """Инициализация менеджеров путей после создания объекта."""
         from ..handlers import PathHandler
+
+        self.images_dir = Path(self.images_dir).resolve()
+        self.labels_dir = Path(self.labels_dir).resolve()
+
         self._image_manager = PathHandler(
             self.images_dir,
             self.image_ext,
@@ -24,8 +27,30 @@ class Split:
             self.labels_dir,
             self.labels_ext,
         )
-        self.images_dir = Path(self.images_dir).resolve()
-        self.labels_dir = Path(self.labels_dir).resolve()
+
+    @classmethod
+    def from_dir(
+        cls,
+        split_path: PathLike,
+        image_ext: Iterable[str] = IMAGE_EXTENSIONS,
+        labels_ext: Iterable[str] = LABEL_EXTENSIONS,
+    ) -> 'Split':
+        """Создает экземпляр Split на основе переданного пути до директории сплита.
+        Ожидается, что директория и изображениями находится по пути `split_path/images/`,
+        а директория с метками находится по пути `split_path/labels/`.
+
+        :param PathLike split_path: Путь до директории сплита
+        :param Iterable[str] image_ext: Расширения изображений
+        :param Iterable[str] labels_ext: Расширения меток
+        :return Split: Инициализированный экземпляр Split
+        """
+        split_path = Path(split_path)
+        return cls(
+            images_dir=split_path / "images",
+            labels_dir=split_path / "labels",
+            image_ext=image_ext,
+            labels_ext=labels_ext,
+        )
 
     def iter_images(self) -> Generator[Path, None, None]:
         """Итерируется по изображениям в сплите.
