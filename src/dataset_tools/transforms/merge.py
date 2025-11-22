@@ -13,7 +13,8 @@ from ..structures import Split, YOLODataset
 class DatasetMerger:
 
     def __init__(self, data_yaml: Iterable[PathLike]):
-        """Инициализирует слияние датасетов.
+        """Инициализирует датасеты для объединения. Создает экземпляры
+        YOLODataset из конфигураций data.yaml.
 
         :param Iterable[PathLike] data_yaml: Пути до data.yaml каждого датасета
         """
