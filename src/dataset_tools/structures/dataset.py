@@ -133,12 +133,13 @@ class YOLODataset:
         for split in self.splits.values():
             yield from split.iter_samples()
 
-    def visualize(self) -> fo.Session:
-        """Визуализирует сэмплы датасета в интерактивном приложении FiftyOne.
+    def get_fiftyone_dataset(self) -> fo.Dataset:
+        """Возвращает экземпляр fiftyone.Dataset с загруженными
+        сэмплами датасета.
 
-        :return fo.Session: Экземпляр сессии FiftyOne с загруженными сэмплами датасета
+        :return fo.Dataset: Экземпляр fiftyone.Dataset
         """
-        # Формирование датасета FyftyOne
+        # Формирование датасета FiftyOne из сплитов
         dataset = fo.Dataset()
         for split in self.splits:
             dataset.add_dir(
@@ -148,6 +149,31 @@ class YOLODataset:
                 split=split,
                 tags=split
             )
+
+        # Создание полей с названием каждого класса
+        for sample in dataset:
+            detections = sample.ground_truth.detections
+            class_id = detections[0].label if detections else None
+
+            sample["class_label"] = fo.Classification(label=class_id)
+            sample.save()
+
+        return dataset
+
+    def get_fiftyone_samples(self) -> list[fo.Sample]:
+        """Возвращает сэмплы датасета в формате FiftyOne.
+
+        :return list[fo.Sample]: Список сэмплов сплита в экземплярах FiftyOne.Sample
+        """
+        dataset = self.get_fiftyone_dataset()
+        return list(dataset)
+
+    def visualize(self) -> fo.Session:
+        """Визуализирует сэмплы датасета в интерактивном приложении FiftyOne.
+
+        :return fo.Session: Экземпляр сессии FiftyOne с загруженными сэмплами датасета
+        """
+        dataset = self.get_fiftyone_dataset()
 
         # Запуск интерактивного приложения
         session = fo.launch_app(dataset)

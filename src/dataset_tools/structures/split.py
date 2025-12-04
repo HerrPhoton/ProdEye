@@ -108,21 +108,12 @@ class Split:
         """
         return sum(1 for _ in self.iter_samples())
 
-    def _get_label_path(self, image_path: Path) -> Path:
-        """Возвращает путь к метке для указанного изображения.
+    def get_fiftyone_samples(self) -> list[fo.Sample]:
+        """Возвращает сэмплы сплита в формате FiftyOne.
 
-        :param Path image_path: Путь до изображения
-        :return Path: Путь до метки
+        :return list[fo.Sample]: Список сэмплов сплита в экземплярах FiftyOne.Sample
         """
-        rel = image_path.relative_to(self.images_dir)
-        return self.labels_dir / rel.with_suffix(".txt")
-
-    def visualize(self) -> fo.Session:
-        """Визуализирует сэмплы сплита в интерактивном приложении FiftyOne.
-
-        :return fo.Session: Экземпляр сессии FiftyOne с загруженными сэмплами сплита
-        """
-        # Формирование списка сэмплов в формате FyftyOne
+        # Формирование списка сэмплов в формате FiftyOne
         samples: list[fo.Sample] = []
         for image_path, label_path in self.iter_samples():
             label = YOLOLabel(label_path)
@@ -134,17 +125,46 @@ class Split:
                 )
                 for bbox in label.bboxes
             ]
+            class_label = str(label.bboxes[0].class_id) if label.bboxes else None
 
             sample = fo.Sample(
                 filepath=str(image_path),
                 ground_truth=fo.Detections(detections=detections),
+                class_label=fo.Classification(label=class_label),
             )
             samples.append(sample)
 
-        # Формирование датасета FyftyOne
+        return samples
+
+    def get_fiftyone_dataset(self) -> fo.Dataset:
+        """Возвращает экземпляр fiftyone.Dataset с загруженными
+        сэмплами сплита.
+
+        :return fo.Dataset: Экземпляр fiftyone.Dataset
+        """
+        samples = self.get_fiftyone_samples()
+
+        # Формирование датасета FiftyOne
         dataset = fo.Dataset()
         dataset.add_samples(samples)
+        return dataset
+
+    def visualize(self) -> fo.Session:
+        """Визуализирует сэмплы сплита в интерактивном приложении FiftyOne.
+
+        :return fo.Session: Экземпляр сессии FiftyOne с загруженными сэмплами сплита
+        """
+        dataset = self.get_fiftyone_dataset()
 
         # Запуск интерактивного приложения
         session = fo.launch_app(dataset)
         return session
+
+    def _get_label_path(self, image_path: Path) -> Path:
+        """Возвращает путь к метке для указанного изображения.
+
+        :param Path image_path: Путь до изображения
+        :return Path: Путь до метки
+        """
+        rel = image_path.relative_to(self.images_dir)
+        return self.labels_dir / rel.with_suffix(".txt")
