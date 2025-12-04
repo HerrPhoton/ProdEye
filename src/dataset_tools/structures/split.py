@@ -2,6 +2,9 @@ from pathlib import Path
 from dataclasses import dataclass
 from collections.abc import Iterable, Generator
 
+import fiftyone as fo
+
+from .label import YOLOLabel
 from ...utils import IMAGE_EXTENSIONS, LABEL_EXTENSIONS, PathLike
 
 
@@ -113,3 +116,35 @@ class Split:
         """
         rel = image_path.relative_to(self.images_dir)
         return self.labels_dir / rel.with_suffix(".txt")
+
+    def visualize(self) -> fo.Session:
+        """Визуализирует сэмплы сплита в интерактивном приложении FiftyOne.
+
+        :return fo.Session: Экземпляр сессии FiftyOne с загруженными сэмплами сплита
+        """
+        # Формирование списка сэмплов в формате FyftyOne
+        samples: list[fo.Sample] = []
+        for image_path, label_path in self.iter_samples():
+            label = YOLOLabel(label_path)
+
+            detections = [
+                fo.Detection(
+                    label=str(bbox.class_id),
+                    bounding_box=[bbox.x - bbox.w / 2, bbox.y - bbox.h / 2, bbox.w, bbox.h],
+                )
+                for bbox in label.bboxes
+            ]
+
+            sample = fo.Sample(
+                filepath=str(image_path),
+                ground_truth=fo.Detections(detections=detections),
+            )
+            samples.append(sample)
+
+        # Формирование датасета FyftyOne
+        dataset = fo.Dataset()
+        dataset.add_samples(samples)
+
+        # Запуск интерактивного приложения
+        session = fo.launch_app(dataset)
+        return session

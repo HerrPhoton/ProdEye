@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from collections.abc import Generator
 
 import yaml
+import fiftyone as fo
 
 from .split import Split
 from ...utils import PathLike
@@ -131,3 +132,23 @@ class YOLODataset:
         """
         for split in self.splits.values():
             yield from split.iter_samples()
+
+    def visualize(self) -> fo.Session:
+        """Визуализирует сэмплы датасета в интерактивном приложении FiftyOne.
+
+        :return fo.Session: Экземпляр сессии FiftyOne с загруженными сэмплами датасета
+        """
+        # Формирование датасета FyftyOne
+        dataset = fo.Dataset()
+        for split in self.splits:
+            dataset.add_dir(
+                dataset_dir=self.root,
+                dataset_type=fo.types.YOLOv5Dataset,
+                yaml_path=self.data_yaml,
+                split=split,
+                tags=split
+            )
+
+        # Запуск интерактивного приложения
+        session = fo.launch_app(dataset)
+        return session
