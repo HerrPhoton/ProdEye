@@ -30,9 +30,9 @@ class DatasetReducer:
     def __init__(self, split_dir: PathLike | Iterable[PathLike]):
         """Инициализирует сплиты датасета для уменьшения их размера.
         На основе переданных путей создает экземпляры Split. В качестве названий сплитов
-        использует имена директорий `split_dirs`.
+        использует имена директорий `split_dir`.
 
-        :param PathLike | Iterable[PathLike] split_dirs: Путь/пути до директорий сплитов датасета
+        :param PathLike | Iterable[PathLike] split_dir: Путь/пути до директорий сплитов датасета
         """
         self.splits: dict[str, Split] = {
             Path(d).name: Split.from_dir(d) for d in normalize_to_paths(split_dir)

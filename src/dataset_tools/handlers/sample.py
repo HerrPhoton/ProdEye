@@ -34,7 +34,6 @@ class YOLOSampleHandler:
         self.splits: list[Split] = []
         for images_dir, labels_dir in zip(images_dirs, labels_dirs):
             self.splits.append(Split(
-                name="",
                 images_dir=images_dir,
                 labels_dir=labels_dir,
                 image_ext=image_ext,
@@ -146,7 +145,7 @@ class YOLOSampleHandler:
             """
             for split in self.splits:
                 try:
-                    return split._get_label_path(image_path)
+                    return split.get_label_path(image_path)
                 except ValueError:
                     continue
             raise ValueError(f"Не удалось найти метку для изображения {image_path}")

@@ -152,10 +152,17 @@ class YOLODataset:
 
         # Создание полей с названием каждого класса
         for sample in dataset:
+            split_name = sample.tags[0]
+            split = self.splits[split_name]
+
+            image_path = Path(sample.filepath)
+            label_path = split.get_label_path(image_path)
+
             detections = sample.ground_truth.detections
             class_id = detections[0].label if detections else None
 
             sample["class_label"] = fo.Classification(label=class_id)
+            sample["label_path"] = str(label_path)
             sample.save()
 
         return dataset
