@@ -2,7 +2,7 @@ from icrawler import Crawler
 
 from .feeder import GettyImagesFeeder
 from .parser import GettyImagesParser
-from .downloader import GettyImagesDownloader
+from ..base.downloader import PrefixDownloader
 
 
 class GettyImagesCrawler(Crawler):
@@ -11,7 +11,7 @@ class GettyImagesCrawler(Crawler):
         self,
         feeder_cls=GettyImagesFeeder,
         parser_cls=GettyImagesParser,
-        downloader_cls=GettyImagesDownloader,
+        downloader_cls=PrefixDownloader,
         *args,
         **kwargs
     ):

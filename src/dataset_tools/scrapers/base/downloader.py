@@ -1,7 +1,7 @@
 from icrawler import ImageDownloader
 
 
-class BingDownloader(ImageDownloader):
+class PrefixDownloader(ImageDownloader):
 
     def get_filename(self, task, default_ext):
         downloader = super()

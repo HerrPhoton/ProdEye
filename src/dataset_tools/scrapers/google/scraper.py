@@ -7,7 +7,7 @@ from ..base import Scraper
 from .filters import GoogleFiltersSpec
 from .storage import GoogleStorage
 from ....utils import PathLike
-from .downloader import GoogleDownloader
+from ..base.downloader import PrefixDownloader
 
 
 class GoogleScraper(Scraper):
@@ -64,7 +64,7 @@ class GoogleScraper(Scraper):
         output_dir.mkdir(parents=True, exist_ok=True)
 
         crawler = GoogleImageCrawler(
-            downloader_cls=GoogleDownloader,
+            downloader_cls=PrefixDownloader,
             feeder_threads=self.num_workers,
             parser_threads=self.num_workers,
             downloader_threads=self.num_workers,

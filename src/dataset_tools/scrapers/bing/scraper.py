@@ -7,7 +7,7 @@ from ..base import Scraper
 from .filters import BingFiltersSpec
 from .storage import BingStorage
 from ....utils import PathLike
-from .downloader import BingDownloader
+from ..base.downloader import PrefixDownloader
 
 
 class BingScraper(Scraper):
@@ -63,7 +63,7 @@ class BingScraper(Scraper):
         output_dir.mkdir(parents=True, exist_ok=True)
 
         crawler = BingImageCrawler(
-            downloader_cls=BingDownloader,
+            downloader_cls=PrefixDownloader,
             feeder_threads=self.num_workers,
             parser_threads=self.num_workers,
             downloader_threads=self.num_workers,
