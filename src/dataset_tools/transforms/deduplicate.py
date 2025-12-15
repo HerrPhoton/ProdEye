@@ -12,15 +12,24 @@ from ..structures import Split, YOLODataset
 class DatasetDeduplicator:
 
     def __init__(self, dataset: fo.Dataset):
+        """
+        Инициализирует утилиту для работы с дубликатами сэмплов.
+
+        :param dataset: Экземпляр датасета FiftyOne.
+        :type dataset: fiftyone.Dataset
+        """
         self.dataset = dataset
         self.similarity_index: SimilarityIndex | None = None
 
     @classmethod
     def from_split_dirs(cls, split_dirs: PathLike | Iterable[PathLike]) -> 'DatasetDeduplicator':
-        """Создает экземпляр DatasetDeduplicator из директорий сплитов.
+        """
+        Создает экземпляр :class:`DatasetDeduplicator` из директорий сплитов.
 
-        :param PathLike | Iterable[PathLike] split_dir: Путь/пути до директорий сплитов датасета
-        :return DatasetDeduplicator: Экзмепляр DatasetDeduplicator, содержащий переданные сплиты
+        :param split_dir: Путь/пути до директорий сплитов датасета.
+        :type split_dir: PathLike | Iterable[PathLike]
+        :return: Экзмепляр :class:`DatasetDeduplicator`, содержащий переданные сплиты.
+        :rtype: DatasetDeduplicator
         """
         paths = normalize_to_paths(split_dirs)
         splits = [Split.from_dir(p) for p in paths]
@@ -34,10 +43,13 @@ class DatasetDeduplicator:
 
     @classmethod
     def from_splits(cls, splits: Iterable[Split]) -> 'DatasetDeduplicator':
-        """Создает экземпляр DatasetDeduplicator из экземляров Split.
+        """
+        Создает экземпляр :class:`DatasetDeduplicator` из экземляров :class:`Split`.
 
-        :param Iterable[Split] splits: Экземпляры сплитов датасета
-        :return DatasetDeduplicator: Экзмепляр DatasetDeduplicator, содержащий переданные сплиты
+        :param splits: Экземпляры сплитов датасета.
+        :type splits: Iterable[Split]
+        :return: Экзмепляр :class:`DatasetDeduplicator`, содержащий переданные сплиты.
+        :rtype: DatasetDeduplicator
         """
         splits = [Path(split.images_dir).parent for split in splits]
 
@@ -50,20 +62,26 @@ class DatasetDeduplicator:
 
     @classmethod
     def from_dataset(cls, dataset: YOLODataset) -> 'DatasetDeduplicator':
-        """Создает экземпляр DatasetDeduplicator из экземляра YOLODataset.
+        """
+        Создает экземпляр :class:`DatasetDeduplicator` из экземляра :class:`YOLODataset`.
 
-        :param YOLODataset dataset: Объект датасета YOLODataset
-        :return DatasetDeduplicator: Экзмепляр DatasetDeduplicator, содержащий сплиты из датасета
+        :param dataset: Объект датасета :class:`YOLODataset`.
+        :type dataset: YOLODataset
+        :return: Экзмепляр :class:`DatasetDeduplicator`, содержащий сплиты из датасета.
+        :rtype: DatasetDeduplicator
         """
         fo_dataset = dataset.get_fiftyone_dataset()
         return cls(fo_dataset)
 
     @classmethod
     def from_yaml(cls, data_yaml: PathLike) -> 'DatasetDeduplicator':
-        """Создает экземпляр DatasetDeduplicator на основе конфигурации data.yaml.
+        """
+        Создает экземпляр :class:`DatasetDeduplicator` на основе конфигурации data.yaml.
 
-        :param PathLike data_yaml: Путь до data.yaml датасета
-        :return DatasetDeduplicator: Инициализированный экземпляр DatasetDeduplicator со сплитами из data.yaml
+        :param data_yaml: Путь до data.yaml датасета.
+        :type data_yaml: PathLike
+        :return: Инициализированный экземпляр :class:`DatasetDeduplicator` со сплитами из data.yaml.
+        :rtype: DatasetDeduplicator
         """
         dataset = YOLODataset.from_yaml(data_yaml)
         fo_dataset = dataset.get_fiftyone_dataset()
@@ -76,18 +94,24 @@ class DatasetDeduplicator:
         batch_size: int | None = None,
         num_workers: int | None = None,
     ) -> dict[str, list[str]]:
-        """Выполняет обнаружение дубликатов изображений в датасете на основе эмбеддингов,
-        сгенерированных моделью. Дубликатами считаются пары сэмплов, евклидово расстояние между
-        эмбеддингами которых не превышает указанный порог.
+        """
+        Выполняет обнаружение дубликатов изображений в датасете на основе эмбеддингов, сгенерированных моделью.
 
-        :param str model: Модель для создания эмбеддингов сэмплов (из списка `fiftyone.zoo.list_zoo_models()`)
-        :param float threshold: Порог нормализированного евклидова расстояния между эмбеддингами (0.0-1.0)
-        :param int batch_size: Размер батча при генерации эмбеддингов
-        :param int num_workers: Число воркеров для параллельной обработки
-        :return dict[str, list[str]]:
+        Дубликатами считаются пары сэмплов, евклидово расстояние между эмбеддингами которых не превышает указанный порог.
+
+        :param model: Модель для создания эмбеддингов сэмплов (из списка :meth:``fiftyone.zoo.list_zoo_models()``).
+        :type model: str, optional
+        :param threshold: Порог нормализированного евклидова расстояния между эмбеддингами ``(0.0-1.0)``.
+        :type threshold: float, optional
+        :param batch_size: Размер батча при генерации эмбеддингов.
+        :type batch_size: int, optional
+        :param num_workers: Число воркеров для параллельной обработки.
+        :type num_workers: int, optional
+        :return:
             Словарь вида ``{ original_filepath: [duplicate_filepath, ...] }``, где ключ —
             путь к исходному изображению, а значение — список путей ко всем найденным
             дубликатам
+        :rtype: dict[str, list[str]]
         """
         # Поиск дубликатов
         self.similarity_index = fob.compute_near_duplicates(
@@ -111,10 +135,12 @@ class DatasetDeduplicator:
         return duplicates_map
 
     def delete_duplicates(self) -> list[tuple[str, str]]:
-        """Удаляет найденные дулбикаты сэмплов.
+        """
+        Удаляет дубликаты сэмплов, найденные в результате вызова метода :meth:`find_duplicates`.
 
-        :raises RuntimeError: Если метод вызван до выполнения `find_duplicates`
-        :return list[tuple[str, str]]: Список путей к удаленным сэмплам (путь до изображения, путь до метки)
+        :raises RuntimeError: Если метод вызван до выполнения :meth:`find_duplicates`.
+        :return: Список путей к удаленным сэмплам ``(путь до изображения, путь до метки)``.
+        :rtype: list[tuple[str, str]]
         """
         if self.similarity_index is None:
             raise RuntimeError("Duplicates have not been calculated. First, call find_duplicates().")
@@ -139,16 +165,19 @@ class DatasetDeduplicator:
         return removed_samples
 
     def visualize_duplicates(self, compute_visualization: bool = False) -> fo.Session:
-        """Визуализирует найденные дубликаты в интерактивном приложении FiftyOne.
+        """
+        Визуализирует найденные дубликаты в интерактивном приложении FiftyOne.
 
         При необходимости метод может дополнительно вычислить двумерное представление
         эмбеддингов с использованием UMAP. В этом случае в приложении FiftyOne в панели
         *Embeddings* появится новое представление с ключом ``"duplicate_embeddings"``.
 
-        :param bool compute_visualization: Если ``True``, вычисляет двумерное представление эмбеддингов (UMAP) и сохраняет
-            его в датасет под ключом ``"duplicate_embeddings"`` для визуализации в интерфейсе FiftyOne
-        :raises RuntimeError: Если метод вызван до выполнения `find_duplicates`
-        :return fiftyone.Session: Экземпляр сессии FiftyOne с найденными дубликатами
+        :param compute_visualization: Если ``True``, вычисляет двумерное представление эмбеддингов (UMAP) и сохраняет
+            его в датасет под ключом ``"duplicate_embeddings"`` для визуализации в интерфейсе FiftyOne.
+        :type compute_visualization: bool, optional
+        :raises RuntimeError: Если метод вызван до выполнения :meth:`find_duplicates`.
+        :return: Экземпляр сессии FiftyOne с найденными дубликатами.
+        :rtype: fiftyone.Session
         """
         if self.similarity_index is None:
             raise RuntimeError("Duplicates have not been calculated. First, call find_duplicates().")

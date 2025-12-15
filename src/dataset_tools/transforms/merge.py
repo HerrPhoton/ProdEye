@@ -1,7 +1,7 @@
 import shutil
 from typing import Literal
 from pathlib import Path
-from collections.abc import Iterable
+from collections.abc import Mapping, Iterable
 
 from tqdm import tqdm
 
@@ -13,20 +13,24 @@ from ..structures import Split, YOLODataset
 class DatasetMerger:
 
     def __init__(self, data_yaml: Iterable[PathLike]):
-        """Инициализирует датасеты для объединения. Создает экземпляры
-        YOLODataset из конфигураций data.yaml.
+        """
+        Инициализирует датасеты для объединения. Создает экземпляры :class:`YOLODataset` из конфигураций data.yaml.
 
-        :param Iterable[PathLike] data_yaml: Пути до data.yaml каждого датасета
+        :param data_yaml: Пути до data.yaml каждого датасета
+        :type data_yaml: Iterable[PathLike]
         """
         paths = normalize_to_paths(data_yaml)
         self.datasets: list[YOLODataset] = [YOLODataset.from_yaml(p) for p in paths]
 
     @classmethod
     def from_datasets(cls, datasets: Iterable[YOLODataset]) -> 'DatasetMerger':
-        """Создает экземпляр DatasetMerger из экземляров YOLODataset.
+        """
+        Создает экземпляр :class:`DatasetMerger` из экземляров :class:`YOLODataset`.
 
-        :param Iterable[YOLODataset] datasets: Объекты датасетов YOLODataset для слияния
-        :return DatasetMerger: Экзмепляр DatasetMerger, содержащий переданные датасеты
+        :param datasets: Объекты датасетов :class:`YOLODataset` для слияния.
+        :type datasets: Iterable[YOLODataset]
+        :return: Экзмепляр :class:`DatasetMerger`, содержащий переданные датасеты.
+        :rtype: DatasetMerger
         """
         merger = cls.__new__(cls)
         merger.datasets = list(datasets)
@@ -38,23 +42,27 @@ class DatasetMerger:
         progress_bar: bool = True,
         on_conflict: Literal["skip", "exception", "rename"] = "rename",
     ) -> YOLODataset:
-        """Объединяет датасеты по их сплитам. Сохраняет объединенный датасет
-        в указанную директорию.
+        """
+        Объединяет датасеты по их сплитам. Сохраняет объединенный датасет в указанную директорию.
 
-        Если `output_dir` является одим из объединяемых датасетов, то индексы его классов берутся за основу,
-        а индексы классов из других датасетов настраиваются относительно основного датасета. Если `output_dir`
+        Если ``output_dir`` является одим из объединяемых датасетов, то индексы его классов берутся за основу,
+        а индексы классов из других датасетов настраиваются относительно основного датасета. Если ``output_dir``
         не является одним из объединяемых датасетов, то в качестве основы используется первый датасет в списке.
 
         Если при копировании сэмплов в одну директорию сплита имена сэмплов будут совпадать, то конфликт будет
         разрешен согласно выбранной стратегии:
-        - skip: пропустить конфликтующий сэмпл
-        - exception: вызвать исключение
-        - rename: переименовать конфликтующий сэмпл, добавив числовой суффикс к имени (например, name.jpg -> name_1.jpg)
+        - ``skip``: пропустить конфликтующий сэмпл
+        - ``exception``: вызвать исключение
+        - ``rename``: переименовать конфликтующий сэмпл, добавив числовой суффикс к имени (например, ``name.jpg -> name_1.jpg``)
 
-        :param PathLike output_dir: Директория для сохранения объединенного датасета
-        :param bool progress_bar: Включить ли индикатор выполнения объединения. Шаг соответсвует копированию сэмпла
-        :param Literal["skip", "exception", "rename"] on_conflict: Стратегия обработки при конфликте имен
-        :return YOLODataset: Экземпляр YOLODataset с объединенными сплитами
+        :param output_dir: Директория для сохранения объединенного датасета.
+        :type output_dir: PathLike
+        :param progress_bar: Включить ли индикатор выполнения объединения. Шаг соответсвует копированию сэмпла.
+        :type progress_bar: bool, optional
+        :param on_conflict: Стратегия обработки при конфликте имен.
+        :type on_conflict: Literal["skip", "exception", "rename"], optional
+        :return: Экземпляр :class:`YOLODataset` с объединенными сплитами.
+        :rtype: YOLODataset
         """
         output_dir = Path(output_dir)
         merged_classes, merged_splits = self._get_base_dataset(output_dir)
@@ -110,14 +118,18 @@ class DatasetMerger:
     def _update_class_indices(
         self,
         labels_dir: Path,
-        dataset_classes: dict[int, str],
+        dataset_classes: Mapping[int, str],
         merged_classes: dict[int, str],
     ) -> None:
-        """Обновляет индексы классов в метках согласно объединенным классам.
+        """
+        Обновляет индексы классов в метках согласно объединенным классам.
 
-        :param Path labels_dir: Директория с метками
-        :param dict[int, str] dataset_classes: Классы текущего датасета
-        :param dict[int, str] merged_classes: Объединенные классы (изменяется in-place)
+        :param labels_dir: Директория с метками.
+        :type labels_dir: pathlib.Path
+        :param dataset_classes: Классы текущего датасета.
+        :type dataset_classes: Mapping[int, str]
+        :param merged_classes: Объединенные классы (изменяется in-place).
+        :type merged_classes: dict[int, str]
         """
         # Инвертировать ключи со значениями для быстрого поиска индексов по названиям классов
         inverted_merged_idx = {name: idx for idx, name in merged_classes.items()}
@@ -151,15 +163,25 @@ class DatasetMerger:
         on_conflict: Literal["skip", "exception", "rename"],
         pbar: tqdm | None,
     ) -> tuple[Path | None, Path | None]:
-        """Копирует сэмпл с обработкой конфликтов имен.
+        """
+        Копирует сэмпл с обработкой конфликтов имен.
 
-        :param Path image_path: Путь к исходному изображению
-        :param Path label_path: Путь к исходной метке
-        :param Path images_dir: Целевая директория для изображений
-        :param Path labels_dir: Целевая директория для меток
-        :param Literal["skip", "exception", "rename"] on_conflict: Стратегия обработки конфликтов
-        :param tqdm | None pbar: Прогресс-бар
-        :return tuple[Path | None, Path | None]: Пути к скопированным файлам или None при `on_conflict=skip`
+        :param image_path: Путь к исходному изображению.
+        :type image_path: pathlib.Path
+        :param label_path: Путь к исходной метке.
+        :type label_path: pathlib.Path
+        :param images_dir: Целевая директория для изображений.
+        :type images_dir: pathlib.Path
+        :param labels_dir: Целевая директория для меток.
+        :type labels_dir: pathlib.Path
+        :param on_conflict: Стратегия обработки конфликтов.
+        :type on_conflict: Literal["skip", "exception", "rename"]
+        :param pbar: Прогресс-бар.
+        :type pbar: tqdm | None
+        :raises FileExistsError: Если при переименовании и ``on_conflict=exception`` сэмплы имеют
+            одинаковые имена с уже существующими сэмплами.
+        :return: Пути к скопированным файлам или None при ``on_conflict=skip``.
+        :rtype: tuple[Path | None, Path | None]
         """
         new_img_path = images_dir / image_path.name
         new_lbl_path = labels_dir / label_path.name
@@ -194,12 +216,17 @@ class DatasetMerger:
         split_name: str,
         merged_splits: dict[str, Split]
     ) -> tuple[Path, Path]:
-        """Создает директории для сплита, если они еще не созданы.
+        """
+        Создает директории для сплита, если они еще не созданы.
 
-        :param Path output_dir: Директория для сохранения объединенного датасета
-        :param str split_name: Имя сплита
-        :param dict[str, Split] merged_splits: Словарь существующих сплитов
-        :return tuple[Path, Path]: Пути к директориям images и labels
+        :param output_dir: Директория для сохранения объединенного датасета.
+        :type output_dir: pathlib.Path
+        :param split_name: Имя сплита.
+        :type split_name: str
+        :param merged_splits: Словарь существующих сплитов.
+        :type merged_splits: dict[str, Split]
+        :return: Пути к директориям ``images`` и ``labels``.
+        :rtype: tuple[pathlib.Path, pathlib.Path]
         """
         # Для нерассмотренного сплита создать директории в датасете
         if split_name not in merged_splits:
@@ -221,10 +248,13 @@ class DatasetMerger:
         return images_dir, labels_dir
 
     def _get_base_dataset(self, output_dir: Path) -> tuple[dict[int, str], dict[str, Split]]:
-        """Определяет базовый датасет и начальные классы для объединения.
+        """
+        Определяет базовый датасет и начальные классы для объединения.
 
-        :param Path output_dir: Директория для сохранения объединенного датасета
-        :return tuple[dict[int, str], dict[str, Split]]: Словарь с индексами и словарь со сплитами базового класса
+        :param output_dir: Директория для сохранения объединенного датасета.
+        :type output_dir: pathlib.Path
+        :return: Словарь с индексами и словарь со сплитами базового класса.
+        :rtype: tuple[dict[int, str], dict[str, Split]]
         """
         merged_classes: dict[str, int] = self.datasets[0].class_names.copy()
         merged_splits: dict[str, Split] = {}
@@ -241,10 +271,13 @@ class DatasetMerger:
         return merged_classes, merged_splits
 
     def _get_unique_path(self, base_path: Path) -> Path:
-        """Генерирует уникальный путь к файлу, добавляя числовой суффикс при конфликте.
+        """
+        Генерирует уникальный путь к файлу, добавляя числовой суффикс при конфликте.
 
-        :param Path base_path: Базовый путь к файлу
-        :return Path: Уникальный путь к файлу
+        :param base_path: Базовый путь к файлу.
+        :type base_path: pathlib.Path
+        :return: Уникальный путь к файлу.
+        :rtype: pathlib.Path
         """
         if not base_path.exists():
             return base_path

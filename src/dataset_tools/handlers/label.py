@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Mapping, Iterable
 
 from .path import PathHandler
 from ...utils import LABEL_EXTENSIONS, PathLike
@@ -13,19 +13,25 @@ class YOLOLabelHandler(PathHandler):
         label_ext: Iterable[str] = LABEL_EXTENSIONS,
         recursive: bool = False,
     ):
-        """Инициализация менеджера для работы с метками YOLO.
+        """
+        Инициализация менеджера для работы с метками YOLO.
 
-        :param PathLike | Iterable[PathLike] labels_dir: Путь/пути до директории с метками
-        :param Iterable[str] label_ext: Расширения файлов с метками
-        :param bool recursive: Искать ли метки в поддиректориях `labels_dir`
-        :raises ValueError: Если указанная директория/директории в `labels_dir` не найдена
+        :param labels_dir: Путь/пути до директории с метками.
+        :type labels_dir: PathLike | Iterable[PathLike]
+        :param label_ext: Расширения файлов с метками.
+        :type label_ext: Iterable[str], optional
+        :param recursive: Искать ли метки в поддиректориях ``labels_dir``.
+        :type recursive: bool, optional
+        :raises ValueError: Если указанная директория/директории в ``labels_dir`` не найдена.
         """
         super().__init__(labels_dir, label_ext, recursive)
 
     def get_background_ratio(self) -> float:
-        """Возвращает долю background-изображений в `self.images_dir`.
+        """
+        Возвращает долю background-изображений в :attr:``images_dir``.
 
-        :return float: доля background-изображений (0-1)
+        :return: Доля background-изображений (0-1).
+        :rtype: float
         """
         total_count = 0
         background_count = 0
@@ -40,34 +46,39 @@ class YOLOLabelHandler(PathHandler):
         return background_count / total_count if total_count > 0 else 0
 
     def validate_labels(self, num_classes: int) -> list[str]:
-        """Проверяет все метки в `self.labels_dir` на корректность.
-        Для каждого bbox должны выполняться условия:
-        1) Номер класса должен быть в диапазоне 0..num_classes-1
-        2) Координаты и ширина bbox должны быть в диапазоне [0, 1]
-
-        :param int num_classes: Количество классов в датасете
-        :return list[str]: Список файлов, которые содержат некорректные значения
         """
-        incorrect = []
+        Проверяет все метки в :attr:`labels_dir` на корректность.
+
+        Для каждого bbox должны выполняться условия:
+        1) Номер класса должен быть в диапазоне ``0..num_classes-1``
+        2) Координаты и размеры bbox должны быть в диапазоне ``[0, 1]``
+
+        :param num_classes: Количество классов в датасете.
+        :type num_classes: int
+        :return: Список файлов, которые содержат некорректные значения
+        :rtype: list[str]
+        """
+        incorrect: list[str] = []
         for label_path in self.iter_files():
             try:
                 label = YOLOLabel(label_path)
                 if not label.validate(num_classes):
                     incorrect.append(str(label_path))
-
             except:
                 incorrect.append(str(label_path))
 
         return incorrect
 
-    def set_classes(self, new_classes: dict[int, int]) -> list[str]:
-        """Устанавливает для каждого bbox в метках `self.labels_dir` указанный класс.
-
-        :param dict[int, int] new_classes: Словарь, в котором ключ - это индекс класса для замены,
-                                           а значение - индекс нового класса
-        :return list[str]: Список файлов, в которых были заменены классы
+    def set_classes(self, new_classes: Mapping[int, int]) -> list[str]:
         """
-        changed_files = []
+        Устанавливает для каждого bbox в метках :attr:`labels_dir` указанный класс.
+
+        :param new_classes: Отображение индексов классов для замены.
+        :type new_classes: Mapping[int, int]
+        :return: Список файлов, в которых были заменены классы.
+        :rtype: list[str]
+        """
+        changed_files: list[str] = []
         for label_path in self.iter_files():
             label = YOLOLabel(label_path)
 
@@ -82,12 +93,15 @@ class YOLOLabelHandler(PathHandler):
         return changed_files
 
     def remove_classes(self, classes: Iterable[int]) -> list[str]:
-        """Удаляет bbox'ы в метках `self.labels_dir` с указанными классами.
-
-        :param Iterable[int] classes: Индекс классов для удаления
-        :return list[str]: Список файлов, в которых были удалены bbox'ы
         """
-        changed_files = []
+        Удаляет bbox'ы в метках :attr:`labels_dir` с указанными классами.
+
+        :param classes: Индексы классов для удаления.
+        :type classes: Iterable[int]
+        :return: Список файлов, в которых были удалены bbox'ы.
+        :rtype: list[str]
+        """
+        changed_files: list[str] = []
         for label_path in self.iter_files():
             label = YOLOLabel(label_path)
 
@@ -104,13 +118,19 @@ class YOLOLabelHandler(PathHandler):
         return changed_files
 
     def remove_invalid_bboxes(self, num_classes: int) -> list[str]:
-        """Удаляет некорректные bbox'ы из меток в `self.labels_dir`.
-        Оставляет только валидные bbox'ы в файлах.
-
-        :param int num_classes: Количество классов в датасете
-        :return list[str]: Список файлов, из которых были удалены невалидные bbox'ы
         """
-        changed_files = []
+        Удаляет некорректные bbox'ы из меток в :attr:`labels_dir`.
+
+        Оставляет только валидные bbox'ы в файлах:
+        1) Номер класса должен быть в диапазоне ``0..num_classes-1``
+        2) Координаты и размеры bbox должны быть в диапазоне ``[0, 1]``
+
+        :param num_classes: Количество классов в датасете.
+        :type num_classes: int
+        :return: Список файлов, из которых были удалены невалидные bbox'ы.
+        :rtype: list[str]
+        """
+        changed_files: list[str] = []
         for label_path in self.iter_files():
             label = YOLOLabel(label_path)
 
@@ -127,12 +147,15 @@ class YOLOLabelHandler(PathHandler):
         return changed_files
 
     def remove_files_with_invalid_bboxes(self, num_classes: int) -> list[str]:
-        """Удаляет файлы меток с невалидными bbox'ами из `self.labels_dir`.
-
-        :param int num_classes: Количество классов в датасете
-        :return list[str]: Список удаленных файлов меток
         """
-        removed_files = []
+        Удаляет файлы меток с невалидными bbox'ами из :attr:`labels_dir`.
+
+        :param num_classes: Количество классов в датасете.
+        :type num_classes: int
+        :return: Список удаленных файлов меток.
+        :rtype: list[str]
+        """
+        removed_files: list[str] = []
         for label_path in self.iter_files():
             label = YOLOLabel(label_path)
             if not all(b.validate(num_classes) for b in label.bboxes):
@@ -142,14 +165,19 @@ class YOLOLabelHandler(PathHandler):
         return removed_files
 
     def rename_labels(self, new_name: str, start_idx: int = 0, zero_padding: int = 0) -> list[tuple[str, str]]:
-        """Переименовывает метки по паттерну `new_name_{idx}`.
-
-        :param str new_name: Базовое имя для новых файлов
-        :param int start_idx: Начальный индекс
-        :param int zero_padding: Количество нулей для паддинга индекса
-        :return list[tuple[str, str]]: Список переименованных меток (старое название, новое название)
         """
-        renamed = []
+        Переименовывает метки по паттерну ``new_name_{idx}``.
+
+        :param new_name: Базовое имя для новых файлов (префикс).
+        :type new_name: str
+        :param start_idx: Начальный индекс.
+        :type start_idx: int, optional
+        :param zero_padding: Количество нулей для паддинга индекса.
+        :type zero_padding: int, optional
+        :return: Список переименованных меток ``(старое название, новое название)``.
+        :rtype: list[tuple[str, str]]
+        """
+        renamed: list[tuple[str, str]] = []
         idx = start_idx
 
         for label_path in self.iter_files():

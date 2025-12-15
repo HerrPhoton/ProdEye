@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Literal
 from pathlib import Path
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping, Iterable
 
 from ....utils import PathLike
 
@@ -9,10 +9,11 @@ from ....utils import PathLike
 class Scraper(ABC):
 
     def __init__(self, num_workers: int = 1):
-        """Инициализация скраппера изображений.
+        """
+        Инициализация скраппера изображений.
 
-        :param int num_workers:
-            Количество рабочих потоков/процессов для загрузки изображений
+        :param num_workers: Количество рабочих потоков/процессов для загрузки изображений.
+        :type num_workers: int
         """
         self.num_workers = num_workers
 
@@ -30,47 +31,39 @@ class Scraper(ABC):
         overwrite: bool = False,
         max_idle_time: int | None = None,
     ) -> None:
-        """Скачивает изображения по заданному поисковому запросу.
+        """
+        Скачивает изображения по заданному поисковому запросу.
 
-        :param str query:
-            Поисковый запрос.
-
-        :param PathLike output_dir:
-            Директория для сохранения скачанных изображений.
-
-        :param Mapping[str, Any] | None filters:
-            Набор фильтров, применяемых к поисковой выдаче.
-            Поддерживаемые ключи и типы значений зависят от конкретной реализации Scraper.
-
-        :param int offset:
-            Смещение начала выборки результатов.
-            Семантика параметра определяется конкретным скраппером
-
-        :param int | None max_num:
-            Максимальное количество изображений для скачивания.
-
-        :param int | None min_size:
-            Минимально допустимый размер изображения (ширина, высота).
-
-        :param int | None max_size:
-            Максимально допустимый размер изображения (ширина, высота).
-
-         :param int | Literal["auto"] file_idx_offset:
-            Начальный индекс для формирования имён файлов изображений.
-            При "auto" автоматически определяет начальный индекс.
-
-        :param bool overwrite:
-            Перезаписывать ли существующие файлы с одинаковыми именами.
-
-        :param int | None max_idle_time:
-            Максимальное время ожидания (в секундах) появления новых изображений.
+        :param query: Поисковый запрос.
+        :type query: str
+        :param output_dir: Директория для сохранения скачанных изображений.
+        :type output_dir: PathLike
+        :param filters: Набор фильтров, применяемых к поисковой выдаче.
+            Поддерживаемые ключи и типы значений зависят от конкретной реализации :class:``Scraper``.
+        :type filters: Mapping[str, Any] | None, optional
+        :param offset: Смещение начала выборки результатов.
+            Семантика параметра определяется конкретным скраппером.
+        :type offset: int, optional
+        :param max_num: Максимальное количество изображений для скачивания.
+        :type max_num: int | None, optional
+        :param min_size: Минимально допустимый размер изображения ``(ширина, высота)``.
+        :type min_size: int | None, optional
+        :param max_size: Максимально допустимый размер изображения ``(ширина, высота)``.
+        :type max_size: int | None, optional
+        :param file_idx_offset: Начальный индекс для формирования имён файлов изображений.
+            При ``"auto"`` автоматически определяет начальный индекс.
+        :type file_idx_offset: int | Literal["auto"], optional
+        :param overwrite: Перезаписывать ли существующие файлы с одинаковыми именами.
+        :type overwrite: bool, optional
+        :param max_idle_time: Максимальное время ожидания (в секундах) появления новых изображений.
             При превышении этого времени загрузка прекращается.
+        :type max_idle_time: int | None, optional
         """
         raise NotImplementedError
 
     def scrape_many(
         self,
-        queries: Sequence[str],
+        queries: Iterable[str],
         output_dir: PathLike,
         filters: Mapping[str, Any] | None = None,
         offset: int = 0,
@@ -81,43 +74,34 @@ class Scraper(ABC):
         overwrite: bool = False,
         max_idle_time: int | None = None,
     ) -> None:
-        """Скачивает изображения для набора поисковых запросов.
+        """
+        Скачивает изображения для набора поисковых запросов.
+        Для каждого запроса создаётся отдельная поддиректория внутри ``output_dir``.
 
-        Для каждого запроса создаётся отдельная поддиректория внутри `output_dir`.
-
-        :param Sequence[str] queries:
-            Набор поисковых запросов.
-
-        :param PathLike output_dir:
-            Корневая директория для сохранения изображений.
-
-        :param Mapping[str, Any] | None filters:
-            Набор фильтров, применяемых к поисковой выдаче.
-            Поддерживаемые ключи и типы значений зависят от конкретной реализации Scraper.
-
-        :param int offset:
-            Смещение начала выборки результатов.
-            Семантика параметра определяется конкретным скраппером
-
-        :param int | None max_num:
-            Максимальное количество изображений для скачивания.
-
-        :param int | None min_size:
-            Минимально допустимый размер изображения (ширина, высота).
-
-        :param int | None max_size:
-            Максимально допустимый размер изображения (ширина, высота).
-
-        :param int | Literal["auto"] file_idx_offset:
-            Начальный индекс для формирования имён файлов изображений.
-            При "auto" автоматически определяет начальный индекс.
-
-        :param bool overwrite:
-            Перезаписывать ли существующие файлы с одинаковыми именами.
-
-        :param int | None max_idle_time:
-            Максимальное время ожидания (в секундах) появления новых изображений.
+        :param queries: Набор поисковых запросов.
+        :type queries: Iterable[str]
+        :param output_dir: Корневая директория для сохранения изображений.
+        :type output_dir: PathLike
+        :param filters: Набор фильтров, применяемых к поисковой выдаче.
+            Поддерживаемые ключи и типы значений зависят от конкретной реализации :class:``Scraper``.
+        :type filters: Mapping[str, Any] | None, optional
+        :param offset: Смещение начала выборки результатов.
+            Семантика параметра определяется конкретным скраппером.
+        :type offset: int, optional
+        :param max_num: Максимальное количество изображений для скачивания.
+        :type max_num: int | None, optional
+        :param min_size: Минимально допустимый размер изображения ``(ширина, высота)``.
+        :type min_size: int | None, optional
+        :param max_size: Максимально допустимый размер изображения ``(ширина, высота)``.
+        :type max_size: int | None, optional
+        :param file_idx_offset: Начальный индекс для формирования имён файлов изображений.
+            При ``"auto"`` автоматически определяет начальный индекс.
+        :type file_idx_offset: int | Literal["auto"], optional
+        :param overwrite: Перезаписывать ли существующие файлы с одинаковыми именами.
+        :type overwrite: bool, optional
+        :param max_idle_time: Максимальное время ожидания (в секундах) появления новых изображений.
             При превышении этого времени загрузка прекращается.
+        :type max_idle_time: int | None, optional
         """
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)

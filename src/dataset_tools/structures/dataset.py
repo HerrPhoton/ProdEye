@@ -20,10 +20,13 @@ class YOLODataset:
 
     @classmethod
     def from_yaml(cls, data_yaml: PathLike) -> 'YOLODataset':
-        """Создает экземпляр YOLODataset на основе конфигурации data.yaml.
+        """
+        Создает экземпляр :class:`YOLODataset` на основе конфигурации data.yaml.
 
-        :param PathLike data_yaml: Путь до data.yaml датасета
-        :return YOLODataset: Инициализированный экземпляр YOLODataset со сплитами из data.yaml
+        :param data_yaml: Путь до data.yaml датасета.
+        :type data_yaml: PathLike
+        :return: Инициализированный экземпляр :class:`YOLODataset` со сплитами из data.yaml.
+        :rtype: YOLODataset
         """
         data_yaml = Path(data_yaml).resolve()
         root = data_yaml.parent.resolve()
@@ -62,26 +65,53 @@ class YOLODataset:
 
     @staticmethod
     def get_labels_dir(images_dir: Path) -> Path:
+        """
+        Возвращает путь до директории с метками для указанной директории
+        с изображениями.
+
+        :param images_dir: Путь до директории с изображениями.
+        :type images_dir: Path
+        :return: Путь до директории с метками.
+        :rtype: Path
+        """
         if images_dir.parts[-1] == "images":
             return images_dir.with_name("labels")
         return images_dir.parent / "labels"
 
     def available_splits(self) -> list[str]:
+        """
+        Возвращает список имен доступных сплитов (ключи :attr:`splits`).
+
+        :return: Список имен доступных сплитов.
+        :rtype: list[str]
+        """
         return list(self.splits.keys())
 
     def get_split(self, name: str) -> Split:
+        """
+        Возвращает экзепляр сплита :class:`Split` по его имени.
+
+        :param name: Имя сплита.
+        :type name: str
+        :raises KeyError: Если сплит с указаными именем не существует в датасете.
+        :return: Экземпляр сплита :class:`Split`.
+        :rtype: Split
+        """
         try:
             return self.splits[name]
         except KeyError:
-            raise KeyError(f"Сплит {name!r} отсутствует в датасете")
+            raise KeyError(f"Split {name} is missing from the dataset.")
 
     def write_data_yaml(self, output_path: PathLike | None = None) -> str:
-        """Создает yaml-файл, содержащий данные из атрибутов класса.
+        """
+        Создает yaml-файл, содержащий данные из атрибутов класса.
 
-        Если `output_path=None`, то создает/перезаписывает data.yaml по пути `self.data_yaml`.
+        Если ``output_path`` установлен в ``None``, то создает/перезаписывает data.yaml по пути :attr:`data_yaml`.
 
-        :param PathLike output_path: Путь до data.yaml
-        :return str: Путь до созданного data.yaml
+        :param output_path: Путь до data.yaml.
+        :type output_path: PathLike, optional
+        :return: Путь до созданного data.yaml.
+        :rtype: str
         """
         if output_path is not None:
             yaml_path = output_path
@@ -102,42 +132,52 @@ class YOLODataset:
         return str(yaml_path)
 
     def count_samples(self) -> dict[str, int]:
-        """Возвращает количество сэмплов для каждого сплита.
+        """
+        Возвращает количество сэмплов для каждого сплита.
 
-        :return dict[str, int]: Словарь, в котором ключ - название сплита, а значение - количество сэмплов
+        :return: Словарь, в котором ключ - название сплита, а значение - количество сэмплов.
+        :rtype: dict[str, int]
         """
         counts = {name: split.count_samples() for name, split in self.splits.items()}
         return counts
 
     def iter_images(self) -> Generator[Path, None, None]:
-        """Итерируется по изображениям во всех сплитах.
+        """
+        Итерируется по изображениям во всех сплитах.
 
-        :yield Generator[Path, None, None]: Путь до изображения
+        :return: Генератор путей до изображения.
+        :rtype: Generator[pathlib.Path, None, None]
         """
         for split in self.splits.values():
             yield from split.iter_images()
 
     def iter_labels(self) -> Generator[Path, None, None]:
-        """Итерируется по меткам во всех сплитах.
+        """
+        Итерируется по меткам во всех сплитах.
 
-        :yield Generator[Path, None, None]: Путь до метки
+        :return: Генератор путей до меток.
+        :rtype: Generator[pathlib.Path, None, None]
         """
         for split in self.splits.values():
             yield from split.iter_labels()
 
     def iter_samples(self) -> Generator[tuple[Path, Path], None, None]:
-        """Итерируется по парам изображение-метка (если оба существуют) по всем сплитам.
+        """
+        Итерируется по парам изображение-метка (если оба существуют) по всем сплитам.
 
-        :yield Generator[tuple[Path, Path], None, None]: путь до изображения, путь до метки
+        :return: Генератор путей до сэмплов (путь до изображения, путь до метки).
+        :rtype: Generator[tuple[pathlib.Path, pathlib.Path], None, None]
         """
         for split in self.splits.values():
             yield from split.iter_samples()
 
     def get_fiftyone_dataset(self) -> fo.Dataset:
-        """Возвращает экземпляр fiftyone.Dataset с загруженными
+        """
+        Возвращает экземпляр :class:`fiftyone.Dataset` с загруженными
         сэмплами датасета.
 
-        :return fo.Dataset: Экземпляр fiftyone.Dataset
+        :return: Экземпляр :class:`fiftyone.Dataset` с загруженными сэмплами из сплитов.
+        :rtype: fiftyone.Dataset
         """
         # Формирование датасета FiftyOne из сплитов
         dataset = fo.Dataset()
@@ -168,17 +208,21 @@ class YOLODataset:
         return dataset
 
     def get_fiftyone_samples(self) -> list[fo.Sample]:
-        """Возвращает сэмплы датасета в формате FiftyOne.
+        """
+        Возвращает сэмплы датасета в формате FiftyOne (:class:`fiftyone.Sample`).
 
-        :return list[fo.Sample]: Список сэмплов сплита в экземплярах FiftyOne.Sample
+        :return: Список сэмплов сплита в экземплярах :class:`fiftyone.Sample`.
+        :rtype: list[fiftyone.Sample]
         """
         dataset = self.get_fiftyone_dataset()
         return list(dataset)
 
     def visualize(self) -> fo.Session:
-        """Визуализирует сэмплы датасета в интерактивном приложении FiftyOne.
+        """
+        Визуализирует сэмплы датасета в интерактивном приложении FiftyOne.
 
-        :return fo.Session: Экземпляр сессии FiftyOne с загруженными сэмплами датасета
+        :return: Экземпляр сессии FiftyOne с загруженными сэмплами датасета.
+        :rtype: :class:`fiftyone.Session`
         """
         dataset = self.get_fiftyone_dataset()
 

@@ -20,13 +20,18 @@ class YOLOSampleHandler:
         image_ext: Iterable[str] = IMAGE_EXTENSIONS,
         labels_ext: Iterable[str] = LABEL_EXTENSIONS,
     ):
-        """Инициализация менеджера для работы с сэмплами (парами изображение-метка).
+        """
+        Инициализация менеджера для работы с сэмплами (парами изображение-метка).
 
-        :param PathLike | Iterable[PathLike] images_dir: Путь/пути до директории с изображениями
-        :param PathLike | Iterable[PathLike] labels_dir: Путь/пути до директории с метками
-        :param Iterable[str] image_ext: Расширения изображений
-        :param Iterable[str] labels_ext: Расширения файлов с метками
-        :raises ValueError: Если указанная директория/директории в `images_dir` или `labels_dir` не найдены
+        :param images_dir: Путь/пути до директории с изображениями.
+        :type images_dir: PathLike | Iterable[PathLike]
+        :param labels_dir: Путь/пути до директории с метками.
+        :type labels_dir: PathLike | Iterable[PathLike]
+        :param image_ext: Расширения изображений.
+        :type image_ext: Iterable[str], optional
+        :param labels_ext: Расширения файлов с метками.
+        :type labels_ext: Iterable[str], optional
+        :raises ValueError: Если указанная директория/директории в ``images_dir`` или ``labels_dir`` не найдены.
         """
         images_dirs = normalize_to_paths(images_dir)
         labels_dirs = normalize_to_paths(labels_dir)
@@ -42,24 +47,29 @@ class YOLOSampleHandler:
 
     @classmethod
     def from_dataset(cls, dataset: YOLODataset) -> 'YOLOSampleHandler':
-        """Создает экземпляр YOLOSampleHandler с директориями из `dataset`.
+        """
+        Создает экземпляр :class:`YOLOSampleHandler` с директориями из ``dataset``.
 
-        :param YOLODataset dataset: Экземпляр YOLODataset
-        :return YOLOSampleHandler: Экземпляр YOLOSampleHandler с изображениями и метками из `dataset`
+        :param dataset: Экземпляр датасета :class:`YOLODataset`.
+        :type dataset: YOLODataset
+        :return: Экземпляр :class:`YOLOSampleHandler` с изображениями и метками из ``dataset``.
+        :rtype: YOLOSampleHandler
         """
         handler = cls.__new__(cls)
         handler.splits = list(dataset.splits.values())
         return handler
 
     def create_empty_labels(self, skip_existing: bool = True) -> list[str]:
-        """Создает файлы с пустыми метками для каждого изображения.
-
-        :param bool skip_existing: Пропускать ли файлы с уже существующими метками
-        :raises ValueError: Если не удалось сформировать путь до метки изображения
-        :return list[str]: Пути к созданным меткам
         """
-        created = []
+        Создает файлы с пустыми метками для каждого изображения.
 
+        :param skip_existing: Пропускать ли файлы с уже существующими метками.
+        :type skip_existing: bool, optional
+        :raises ValueError: Если не удалось сформировать путь до метки изображения.
+        :return: Пути к созданным меткам.
+        :rtype: list[str]
+        """
+        created: list[str] = []
         for image_path in self._iter_images():
             label_path = self._get_label_path(image_path)
 
@@ -72,12 +82,14 @@ class YOLOSampleHandler:
         return created
 
     def get_unlabeled_images(self) -> list[str]:
-        """Возвращает список изображений без меток.
-
-        :raises ValueError: Если не удалось сформировать путь до метки изображения
-        :return list[str]: Список путей до изображений без метки
         """
-        unlabeled = []
+        Возвращает список изображений без меток.
+
+        :raises ValueError: Если не удалось сформировать путь до метки изображения.
+        :return: Список путей до изображений без метки.
+        :rtype: list[str]
+        """
+        unlabeled: list[str] = []
         for image_path in self._iter_images():
             label_path = self._get_label_path(image_path)
 
@@ -87,12 +99,14 @@ class YOLOSampleHandler:
         return unlabeled
 
     def remove_unlabeled_images(self) -> list[str]:
-        """Удаляет изображения без меток.
-
-        :raises ValueError: Если не удалось сформировать путь до метки изображения
-        :return list[str]: Список удаленных файлов
         """
-        removed = []
+        Удаляет изображения без меток.
+
+        :raises ValueError: Если не удалось сформировать путь до метки изображения.
+        :return: Список путей удаленных файлов.
+        :rtype: list[str]
+        """
+        removed: list[str] = []
         for image_path in self._iter_images():
             label_path = self._get_label_path(image_path)
 
@@ -103,12 +117,17 @@ class YOLOSampleHandler:
         return removed
 
     def rename_samples(self, new_name: str, start_idx: int = 0, zero_padding: int = 0) -> list[RenamedSample]:
-        """Переименовывает сэмплы по паттерну `new_name_{idx}`.
+        """
+        Переименовывает сэмплы по паттерну ``new_name_{idx}``.
 
-        :param str new_name: Базовое имя для новых файлов
-        :param int start_idx: Начальный индекс
-        :param int zero_padding: Количество нулей для паддинга индекса
-        :return list[RenamedSample]: Список переименованных сэмплов
+        :param new_name: Базовое имя для новых файлов (префикс).
+        :type new_name: str
+        :param start_idx: Начальный индекс.
+        :type start_idx: int, optional
+        :param zero_padding: Количество нулей для паддинга индекса.
+        :type zero_padding: int, optional
+        :return: Список переименованных сэмплов.
+        :rtype: list[RenamedSample]
         """
         renamed = []
         idx = start_idx
@@ -138,10 +157,14 @@ class YOLOSampleHandler:
         return renamed
 
     def _get_label_path(self, image_path: Path) -> Path:
-            """Возвращает путь к метке для указанного изображения.
+            """
+            Возвращает путь к метке для указанного изображения.
 
-            :raises ValueError: Если не удалось сформировать путь до метки изображения
-            :return Path: Путь до метки для изображения
+            :param image_path: Путь к изображению.
+            :type image_path: pathlib.Path
+            :raises ValueError: Если не удалось сформировать путь до метки изображения.
+            :return: Путь до метки.
+            :rtype: pathlib.Path
             """
             for split in self.splits:
                 try:
@@ -151,25 +174,31 @@ class YOLOSampleHandler:
             raise ValueError(f"Не удалось найти метку для изображения {image_path}")
 
     def _iter_images(self) -> Generator[Path, None, None]:
-        """Итерируется по изображениям во всех сплитах.
+        """
+        Итерируется по изображениям во всех сплитах.
 
-        :yield Generator[Path, None, None]: Путь до изображения
+        :return: Генератор путей к изображениям.
+        :rtype: Generator[pathlib.Path, None, None]
         """
         for split in self.splits:
             yield from split.iter_images()
 
     def _iter_labels(self) -> Generator[Path, None, None]:
-        """Итерируется по меткам во всех сплитах.
+        """
+        Итерируется по меткам во всех сплитах.
 
-        :yield Generator[Path, None, None]: Путь до метки
+        :return: Генератор путей к меткам.
+        :rtype: Generator[pathlib.Path, None, None]
         """
         for split in self.splits:
             yield from split.iter_labels()
 
     def _iter_samples(self) -> Generator[tuple[Path, Path], None, None]:
-        """Итерируется по парам изображение-метка (если оба существуют) по всем сплитам.
+        """
+        Итерируется по парам изображение-метка (если оба существуют) по всем сплитам.
 
-        :yield Generator[tuple[Path, Path], None, None]: путь до изображения, путь до метки
+        :return: Генератор путей к сэмплам (путь до изображения, путь до метки).
+        :rtype: Generator[tuple[pathlib.Path, pathlib.Path], None, None]
         """
         for split in self.splits:
             yield from split.iter_samples()

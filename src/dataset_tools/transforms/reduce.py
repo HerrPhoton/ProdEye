@@ -28,11 +28,13 @@ class ReductionResult:
 class DatasetReducer:
 
     def __init__(self, split_dir: PathLike | Iterable[PathLike]):
-        """Инициализирует сплиты датасета для уменьшения их размера.
-        На основе переданных путей создает экземпляры Split. В качестве названий сплитов
-        использует имена директорий `split_dir`.
+        """
+        Инициализирует сплиты датасета для уменьшения их размера.
+        На основе переданных путей создает экземпляры :class:`Split`. В качестве названий сплитов
+        использует имена директорий ``split_dir``.
 
-        :param PathLike | Iterable[PathLike] split_dir: Путь/пути до директорий сплитов датасета
+        :param split_dir: Путь/пути до директорий сплитов датасета.
+        :type split_dir: PathLike | Iterable[PathLike]
         """
         self.splits: dict[str, Split] = {
             Path(d).name: Split.from_dir(d) for d in normalize_to_paths(split_dir)
@@ -40,10 +42,13 @@ class DatasetReducer:
 
     @classmethod
     def from_splits(cls, splits: Iterable[Split]) -> 'DatasetReducer':
-        """Создает экземпляр DatasetReducer из экземляров Split.
+        """
+        Создает экземпляр :class:`DatasetReducer` из экземляров :class:`Split`.
 
-        :param Iterable[Split] splits: Экземпляры сплитов датасета
-        :return DatasetReducer: Экзмепляр DatasetReducer, содержащий переданные сплиты
+        :param splits: Экземпляры сплитов датасета.
+        :type splits: Iterable[Split]
+        :return: Экзмепляр :class:`DatasetReducer`, содержащий переданные сплиты.
+        :rtype: DatasetReducer
         """
         reducer = cls.__new__(cls)
         reducer.splits = {
@@ -53,10 +58,13 @@ class DatasetReducer:
 
     @classmethod
     def from_dataset(cls, dataset: YOLODataset) -> 'DatasetReducer':
-        """Создает экземпляр DatasetReducer из экземляра YOLODataset.
+        """
+        Создает экземпляр DatasetReducer из экземляра :class:`YOLODataset`.
 
-        :param YOLODataset dataset: Объект датасета YOLODataset
-        :return DatasetReducer: Экзмепляр DatasetReducer, содержащий сплиты из датасета
+        :param dataset: Объект датасета :class:`YOLODataset`.
+        :type dataset: YOLODataset
+        :return: Экзмепляр :class:`DatasetReducer`, содержащий сплиты из датасета.
+        :rtype: DatasetReducer
         """
         reducer = cls.__new__(cls)
         reducer.splits = dataset.splits
@@ -67,22 +75,27 @@ class DatasetReducer:
         split_sizes: dict[str, int],
         strategy: Literal["first", "last", "random"] = "random",
     ) -> dict[str, ReductionResult]:
-        """Уменьшает размер сплитов путем удаления сэмплов с заданной стратегий отбора.
+        """
+        Уменьшает размер сплитов путем удаления сэмплов с заданной стратегий отбора.
 
-        Если сплит содержит меньше сэмплов, чем указано в `split_sizes`,
+        Если сплит содержит меньше сэмплов, чем указано в ``split_sizes``,
         то он остаётся без изменений.
 
-        Порядок элементов определяется естественной сортировкой (natural sort) имён файлов,
+        Порядок элементов определяется естественной сортировкой (*natural sort*) имён файлов,
         тогда стратегия выбора:
-          - "first" - удаляет первые имена в естественном порядке;
-          - "last"  - удаляет последние имена в естественном порядке;
-          - "random" - удаляет случайный набор сэмплов.
+          - ``first`` - удаляет первые имена в естественном порядке;
+          - ``last``  - удаляет последние имена в естественном порядке;
+          - ``random`` - удаляет случайный набор сэмплов.
 
-        :param dict[str, int] split_sizes: Целевые размеры отдельно для указанных сплитов.
-                                           Ключи - названия сплитов, значения - целевые размеры
-        :param Literal["first", "last", "random"] strategy: Стратегия выбора удаляемых сэмплов
-        :param dict[str, str] | None filter: Дополнительный фильтр имен сэмплов.
-        :return dict[str, ReductionResult]: Словарь с названиями сплитов и с информацией об удаленных сэмплах.
+        :param split_sizes: Целевые размеры отдельно для указанных сплитов.
+            Ключи - названия сплитов, значения - целевые размеры
+        :type split_sizes: dict[str, int]
+        :param strategy: Стратегия выбора удаляемых сэмплов.
+        :type strategy: Literal["first", "last", "random"], optional
+        :param filter: Дополнительный фильтр имен сэмплов.
+        :type filter: dict[str, str] | None, optional
+        :return: Словарь с названиями сплитов и с информацией об удаленных сэмплах.
+        :rtype: dict[str, ReductionResult]
         """
         results: dict[str, ReductionResult] = {}
         for split_name, size in split_sizes.items():
@@ -100,12 +113,17 @@ class DatasetReducer:
         size: int,
         strategy: Literal["first", "last", "random"] = "random",
     ) -> ReductionResult:
-        """Удаляет сэмплы из сплита с заданной стратегий отбора.
+        """
+        Удаляет сэмплы из сплита с заданной стратегий отбора.
 
-        :param Split split: Экземпляр сплита, в котором будут удалены сэмплы
-        :param int size: Целевое количество сэмплов в сплите
-        :param Literal["first", "last", "random"] strategy: Стратегия выбора удаляемых сэмплов
-        :return ReductionResult: Информация об удаленных сэмплах
+        :param split: Экземпляр сплита, в котором будут удалены сэмплы.
+        :type split: Split
+        :param size: Целевое количество сэмплов в сплите.
+        :type size: int
+        :param strategy: Стратегия выбора удаляемых сэмплов.
+        :type strategy: Literal["first", "last", "random"], optional
+        :return: Информация об удаленных сэмплах.
+        :rtype: ReductionResult
         """
         # Сортировка сэмплов в естественном порядке
         samples = natsorted(split.iter_samples())

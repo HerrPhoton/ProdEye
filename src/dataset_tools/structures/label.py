@@ -7,7 +7,6 @@ from ...utils import PathLike
 
 @dataclass
 class YOLOLabel:
-    """Представляет файл метки YOLO с bbox'ами."""
     path: PathLike
     bboxes: list[BBox] = field(default_factory=list)
 
@@ -17,10 +16,12 @@ class YOLOLabel:
         self.bboxes = self.read()
 
     def read(self) -> list[BBox]:
-        """Возвращает список значений bbox'ов в файле.
+        """
+        Возвращает список значений bbox'ов в файле :attr:`path`.
 
-        :raises ValueError: При неверном количестве значений bbox'ов
-        :return list[BBox]: Список bbox'ов (class_id, x, y, w, h)
+        :raises ValueError: При неверном количестве значений bbox'ов.
+        :return: Список bbox'ов ``(class_id, x, y, w, h)``.
+        :rtype: list[BBox]
         """
         bboxes: list[BBox] = []
         with open(self.path) as file:
@@ -47,16 +48,25 @@ class YOLOLabel:
             file.writelines(data)
 
     def validate(self, num_classes: int) -> bool:
-        """Проверяет корректность всех bbox'ов в метке.
+        """
+        Проверяет корректность всех bbox'ов в метке.
 
-        :param int num_classes: Количество классов в датасете (классы: 0..num_classes-1)
-        :return bool: Являются ли все значения bbox в метке допустимыми
+        Для каждого bbox должны выполняться условия:
+        1) Номер класса должен быть в диапазоне ``0..num_classes-1``
+        2) Координаты и размеры bbox должны быть в диапазоне ``[0, 1]``
+
+        :param num_classes: Количество классов в датасете ``0..num_classes-1``.
+        :type num_classes: int
+        :return: Являются ли все значения bbox в метке допустимыми.
+        :rtype: bool
         """
         return all(b.validate(num_classes) for b in self.bboxes)
 
     def is_empty(self) -> bool:
-        """Проверяет, является ли метка пустой.
+        """
+        Проверяет, является ли метка пустой (без bbox'ов).
 
-        :return bool: True, если метка пустая; False - иначе
+        :return: ``True``, если метка пустая; ``False`` - иначе.
+        :rtype: bool
         """
         return len(self.bboxes) == 0

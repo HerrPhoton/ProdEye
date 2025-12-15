@@ -10,10 +10,17 @@ class BBox:
     h: float
 
     def validate(self, num_classes: int) -> bool:
-        """Проверяет, находятся ли значения bbox в допустимом диапазоне.
+        """
+        Проверяет, находятся ли значения bbox в допустимом диапазоне.
 
-        :param int num_classes: Количество классов в датасете (классы: 0..num_classes-1)
-        :return bool: Являются ли значения bbox допустимыми
+        Для каждого bbox должны выполняться условия:
+        1) Номер класса должен быть в диапазоне ``0..num_classes-1``
+        2) Координаты и размеры bbox должны быть в диапазоне ``[0, 1]``
+
+        :param num_classes: Количество классов в датасете ``0..num_classes-1``.
+        :type num_classes: int
+        :return: Являются ли значения bbox допустимыми.
+        :rtype: bool
         """
         # Проверка координат (диапазон [0, 1])
         if not all(0 <= value <= 1 for value in (self.x, self.y, self.w, self.h)):

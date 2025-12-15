@@ -38,14 +38,20 @@ class Split:
         image_ext: Iterable[str] = IMAGE_EXTENSIONS,
         labels_ext: Iterable[str] = LABEL_EXTENSIONS,
     ) -> 'Split':
-        """Создает экземпляр Split на основе переданного пути до директории сплита.
-        Ожидается, что директория и изображениями находится по пути `split_path/images/`,
-        а директория с метками находится по пути `split_path/labels/`.
+        """
+        Создает экземпляр :class:`Split` на основе переданного пути до директории сплита.
 
-        :param PathLike split_path: Путь до директории сплита
-        :param Iterable[str] image_ext: Расширения изображений
-        :param Iterable[str] labels_ext: Расширения меток
-        :return Split: Инициализированный экземпляр Split
+        Ожидается, что директория и изображениями находится по пути ``split_path/images/``,
+        а директория с метками находится по пути ``split_path/labels/``.
+
+        :param split_path: Путь до директории сплита.
+        :type split_path: PathLike
+        :param image_ext: Расширения изображений.
+        :type image_ext: Iterable[str], optional
+        :param labels_ext: Расширения меток
+        :type labels_ext: Iterable[str], optional
+        :return: Инициализированный экземпляр :class:`Split`.
+        :rtype: Split
         """
         split_path = Path(split_path)
         return cls(
@@ -56,23 +62,29 @@ class Split:
         )
 
     def iter_images(self) -> Generator[Path, None, None]:
-        """Итерируется по изображениям в сплите.
+        """
+        Итерируется по изображениям в сплите.
 
-        :yield Generator[Path, None, None]: Путь до изображения
+        :return: Генератор путей до изображений.
+        :rtype: Generator[pathlib.Path, None, None]
         """
         yield from self._image_handler.iter_files()
 
     def iter_labels(self) -> Generator[Path, None, None]:
-        """Итерируется по меткам в сплите.
+        """
+        Итерируется по меткам в сплите.
 
-        :yield Generator[Path, None, None]: Путь до метки
+        :return: Генератор путей до меток.
+        :rtype: Generator[pathlib.Path, None, None]
         """
         yield from self._label_handler.iter_files()
 
     def iter_samples(self) -> Generator[tuple[Path, Path], None, None]:
-        """Итерируется по парам изображение-метка (если оба существуют).
+        """
+        Итерируется по парам изображение-метка (если оба существуют).
 
-        :yield Generator[tuple[Path, Path], None, None]: путь до изображения, путь до метки
+        :return: Генератор путей до сэмплов (путь до изображения, путь до метки).
+        :rtype: Generator[tuple[pathlib.Path, pathlib.Path], None, None]
         """
         for image_path in self.iter_images():
             label_path = self.get_label_path(image_path)
@@ -80,38 +92,48 @@ class Split:
                 yield image_path, label_path
 
     def exists(self) -> bool:
-        """Проверяет существование директорий сплита.
+        """
+        Проверяет существование директорий сплита.
 
-        :return bool: True, если директории `self.images_dir` и `self.labels_dir` существуют;
-                      False - иначе
+        :return: ``True``, если директории ``self.images_dir`` и ``self.labels_dir`` существуют;
+            ``False`` - иначе.
+        :rtype: bool
         """
         return self.images_dir.exists() and self.labels_dir.exists()
 
     def count_images(self) -> int:
-        """Возвращает количество изображений в сплите.
+        """
+        Возвращает количество изображений в сплите.
 
-        :return int: Количество изображений
+        :return: Количество изображений.
+        :rtype: int
         """
         return sum(1 for _ in self.iter_images())
 
     def count_labels(self) -> int:
-        """Возвращает количество меток в сплите.
+        """
+        Возвращает количество меток в сплите.
 
-        :return int: Количество меток
+        :return: Количество меток.
+        :rtype: int
         """
         return sum(1 for _ in self.iter_labels())
 
     def count_samples(self) -> int:
-        """Возвращает количество пар изображение-метка в сплите.
+        """
+        Возвращает количество пар изображение-метка в сплите.
 
-        :return int: Количество пар изображение-метка
+        :return: Количество сэмплов.
+        :rtype: int
         """
         return sum(1 for _ in self.iter_samples())
 
     def get_fiftyone_samples(self) -> list[fo.Sample]:
-        """Возвращает сэмплы сплита в формате FiftyOne.
+        """
+        Возвращает сэмплы сплита в формате FiftyOne (:class:`fiftyone.Sample`).
 
-        :return list[fo.Sample]: Список сэмплов сплита в экземплярах FiftyOne.Sample
+        :return: Список сэмплов сплита в виде экземпляров :class:`fiftyone.Sample`.
+        :rtype: list[fiftyone.Sample]
         """
         # Формирование списка сэмплов в формате FiftyOne
         samples: list[fo.Sample] = []
@@ -138,10 +160,12 @@ class Split:
         return samples
 
     def get_fiftyone_dataset(self) -> fo.Dataset:
-        """Возвращает экземпляр fiftyone.Dataset с загруженными
+        """
+        Возвращает экземпляр :class:`fiftyone.Dataset` с загруженными
         сэмплами сплита.
 
-        :return fo.Dataset: Экземпляр fiftyone.Dataset
+        :return: Экземпляр :class:`fiftyone.Dataset`.
+        :rtype: fiftyone.Dataset
         """
         samples = self.get_fiftyone_samples()
 
@@ -151,9 +175,11 @@ class Split:
         return dataset
 
     def visualize(self) -> fo.Session:
-        """Визуализирует сэмплы сплита в интерактивном приложении FiftyOne.
+        """
+        Визуализирует сэмплы сплита в интерактивном приложении FiftyOne.
 
-        :return fo.Session: Экземпляр сессии FiftyOne с загруженными сэмплами сплита
+        :return: Экземпляр сессии FiftyOne с загруженными сэмплами сплита.
+        :rtype: :class:`fiftyone.Session`
         """
         dataset = self.get_fiftyone_dataset()
 
@@ -162,10 +188,13 @@ class Split:
         return session
 
     def get_label_path(self, image_path: Path) -> Path:
-        """Возвращает путь к метке для указанного изображения.
+        """
+        Возвращает путь к метке для указанного изображения.
 
-        :param Path image_path: Путь до изображения
-        :return Path: Путь до метки
+        :param image_path: Путь до изображения.
+        :type image_path: pathlib.Path
+        :return: Путь до метки.
+        :rtype: Path
         """
         rel = image_path.relative_to(self.images_dir)
         return self.labels_dir / rel.with_suffix(".txt")

@@ -26,39 +26,33 @@ class GoogleScraper(Scraper):
         max_idle_time: int | None = None,
         language: str | None = None
     ) -> None:
-        """Скачивает изображения с Google по заданному поисковому запросу.
+        """
+        Скачивает изображения с Google по заданному поисковому запросу.
 
-        :param str query:
-            Поисковый запрос для Bing.
+        Скачанные изображения будут иметь префикс ``google_`` и индекс изображения.
 
-        :param PathLike output_dir:
-            Директория для сохранения изображений.
-
-        :param GoogleFiltersSpec | None filters:
-            Фильтры поиска в Google.
-
-        :param int offset:
-            Номер стартового изображения с начала списка результатов.
-
-        :param int | None max_num:
-            Максимальное количество изображений для скачивания.
-
-        :param int | None min_size:
-            Минимально допустимый размер изображения (ширина, высота).
-
-        :param int | None max_size:
-            Максимально допустимый размер изображения (ширина, высота).
-
-        :param int | Literal["auto"] file_idx_offset:
-            Начальный индекс для формирования имён файлов изображений.
-            При "auto" автоматически определяет начальный индекс.
-
-        :param bool overwrite:
-            Перезаписывать ли существующие файлы с одинаковыми именами.
-
-        :param int | None max_idle_time:
-            Максимальное время ожидания (в секундах) появления новых изображений.
+        :param query: Поисковый запрос для Google.
+        :type query: str
+        :param output_dir: Директория для сохранения изображений.
+        :type output_dir: PathLike
+        :param filters: Фильтры поиска в Google.
+        :type filters: GoogleFiltersSpec | None, optional
+        :param offset: Номер стартового изображения с начала списка результатов.
+        :type offset: int, optional
+        :param max_num: Максимальное количество изображений для скачивания.
+        :type max_num: int | None, optional
+        :param min_size: Минимально допустимый размер изображения ``(ширина, высота)``.
+        :type min_size: int | None, optional
+        :param max_size: Максимально допустимый размер изображения ``(ширина, высота)``.
+        :type max_size: int | None, optional
+        :param file_idx_offset: Начальный индекс для формирования имён файлов изображений.
+            При ``"auto"`` автоматически определяет начальный индекс.
+        :type file_idx_offset: int | Literal["auto"], optional
+        :param overwrite: Перезаписывать ли существующие файлы с одинаковыми именами.
+        :type overwrite: bool, optional
+        :param max_idle_time: Максимальное время ожидания (в секундах) появления новых изображений.
             При превышении этого времени загрузка прекращается.
+        :type max_idle_time: int | None, optional
         """
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
