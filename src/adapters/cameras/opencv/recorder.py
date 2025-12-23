@@ -80,7 +80,7 @@ class OpenCVRecorder:
                 # Проверка, прошло ли достаточно времени с последнего сохранения
                 if current_time - last_save_time >= interval:
                     frame = self.camera.read()
-                    if self.camera.config.convert_to_rgb:
+                    if self.camera.convert_to_rgb:
                         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
                     filename = f"{filename_prefix}_{frame_count:06d}.jpg"

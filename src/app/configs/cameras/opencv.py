@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
 
-@dataclass
-class CameraConfig:
+@dataclass(frozen=True)
+class OpenCVCameraConfig:
     """
     Параметры инициализации камеры.
 

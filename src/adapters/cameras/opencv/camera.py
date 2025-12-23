@@ -3,15 +3,20 @@ import contextlib
 import cv2
 import numpy as np
 
-from configs.camera import CameraConfig
 from src.exceptions import CameraOpenError, CameraReadError
+from src.app.configs.cameras import OpenCVCameraConfig
 
 
 class OpenCVCamera:
     """Адаптер камеры на базе OpenCV."""
 
-    def __init__(self, config: CameraConfig | None = None):
-        self.config = config or CameraConfig()
+    def __init__(self, config: OpenCVCameraConfig):
+        self.source = config.source
+        self.width = config.width
+        self.height = config.height
+        self.fps = config.fps
+        self.convert_to_rgb = config.convert_to_rgb
+
         self._cap: cv2.VideoCapture | None = None
         self._is_open: bool = False
 
@@ -24,21 +29,19 @@ class OpenCVCamera:
         if self._is_open:
             return
 
-        source = self.config.source
-        cap = cv2.VideoCapture(source)
-
+        cap = cv2.VideoCapture(self.source)
         if not cap.isOpened():
             cap.release()
-            raise CameraOpenError(f"The video source could not be opened: {source}")
+            raise CameraOpenError(f"The video source could not be opened: {self.source}")
 
-        if self.config.width is not None:
-            cap.set(cv2.CAP_PROP_FRAME_WIDTH, float(self.config.width))
+        if self.width is not None:
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, float(self.width))
 
-        if self.config.height is not None:
-            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, float(self.config.height))
+        if self.height is not None:
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, float(self.height))
 
-        if self.config.fps is not None:
-            cap.set(cv2.CAP_PROP_FPS, float(self.config.fps))
+        if self.fps is not None:
+            cap.set(cv2.CAP_PROP_FPS, float(self.fps))
 
         self._cap = cap
         self._is_open = True
@@ -67,7 +70,7 @@ class OpenCVCamera:
         if not ok:
             raise CameraReadError("Couldn't read frame from source")
 
-        if self.config.convert_to_rgb:
+        if self.convert_to_rgb:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         return frame

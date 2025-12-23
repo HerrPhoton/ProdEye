@@ -15,7 +15,7 @@ class Detector(Protocol):
 
         :param frame: Видеокадр.
         :type frame: numpy.ndarray
-        :return: Список детекций.
+        :return: Список детекций на видеокадре.
         :rtype: list[Detection]
         """
         pass

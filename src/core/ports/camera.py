@@ -15,7 +15,7 @@ class Camera(Protocol):
         """
         Считывает один видеокадр.
 
-        :return: Кадр в формате HxWxC.
+        :return: Кадр в формате ``H x W x C``.
         :rtype: numpy.ndarray
         """
         pass

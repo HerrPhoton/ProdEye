@@ -1,0 +1,19 @@
+path: weights/best.pt
+
+confidence: 0.2
+iou: 0.4
+
+device: cpu
+
+classes:
+- apple
+- cucumber
+- grape
+- kiwi
+- lemon
+- orange
+- pear
+- pineapple
+- potato
+- tomato
+- watermelon

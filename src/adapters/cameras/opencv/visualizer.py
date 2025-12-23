@@ -38,7 +38,7 @@ class OpenCVVisualizer:
         while True:
             try:
                 frame = self.camera.read()
-                if self.camera.config.convert_to_rgb:
+                if self.camera.convert_to_rgb:
                     frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
                 self.visualize_frame(frame, winname)
