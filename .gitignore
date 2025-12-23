@@ -1,5 +1,6 @@
 # Datasets
-datasets/
+datasets/*
+!datasets/.gitkeep
 
 # Virtual enviroment
 .venv/
