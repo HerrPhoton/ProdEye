@@ -7,7 +7,7 @@ import yaml
 import fiftyone as fo
 
 from .split import Split
-from ...utils import PathLike
+from ...utils import PathLike, normalize_class_mapping
 
 
 @dataclass
@@ -34,11 +34,8 @@ class YOLODataset:
         with open(data_yaml) as file:
             data = yaml.safe_load(file)
 
-        class_names = data["names"]
+        class_names = normalize_class_mapping(data["names"])
         num_classes = data["nc"]
-
-        if isinstance(class_names, list):
-            class_names = dict(enumerate(class_names))
 
         splits: dict[str, Split] = {}
         for split_name in ("train", "val", "test"):

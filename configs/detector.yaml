@@ -1,0 +1,27 @@
+type: yolo
+
+weights_path: weights/best.pt
+device: cpu
+
+thresholds:
+  confidence: 0.2
+  iou: 0.4
+
+classes:
+- apple
+- cucumber
+- grape
+- kiwi
+- lemon
+- orange
+- pear
+- pineapple
+- potato
+- tomato
+- watermelon
+
+# type: mock
+
+# confidence_range: [0.7, 0.95]
+# detections_num_range: [1, 3]
+# class_ids: [0, 1, 2, 3]

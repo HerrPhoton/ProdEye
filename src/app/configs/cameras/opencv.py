@@ -1,3 +1,4 @@
+from typing import Any
 from dataclasses import dataclass
 
 
@@ -22,3 +23,23 @@ class OpenCVCameraConfig:
     height: int | None = None
     fps: int | None = None
     convert_to_rgb: bool = True
+
+
+def parse(raw: dict[str, Any]) -> OpenCVCameraConfig:
+    """
+    Создает экземпляр конфига камеры :class:`OpenCVCameraConfig`
+    на основе переданного словаря.
+
+    :param raw: Словарь с параметрами для конфига.
+    :type raw: dict[str, Any]
+    :return: Экземпляр конфига, инициализированный параметрами из словаря.
+    :rtype: OpenCVCameraConfig
+    """
+    resolution = raw.get("resolution", {})
+    return OpenCVCameraConfig(
+        source=raw.get("source", 0),
+        width=resolution.get("width"),
+        height=resolution.get("height"),
+        fps=raw.get("fps"),
+        convert_to_rgb=raw.get("convert_to_rgb", True),
+    )

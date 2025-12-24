@@ -1,0 +1,18 @@
+type: opencv
+
+source: 0 # rtsp://192.168.0.194:554/onvif1
+
+# resolution:
+#   width: 640
+#   height: 320
+# fps: 30
+
+convert_to_rgb: true
+
+# type: mock
+
+# frames_dir: darasets/processed/v1/train/images/
+# resolution:
+#   width: 640
+#   height: 320
+# fps: 30
