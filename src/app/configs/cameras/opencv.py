@@ -16,7 +16,7 @@ class OpenCVCameraConfig:
     :var fps: Целевая частота кадров.
     :vartype fps: int | None, optional
     :var convert_to_rgb: Конвертировать ли BGR в RGB.
-    :vartype convert_to_rgb: bool
+    :vartype convert_to_rgb: bool, optional
     """
     source: int | str = 0
     width: int | None = None

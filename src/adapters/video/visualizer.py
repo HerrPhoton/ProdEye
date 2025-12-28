@@ -1,17 +1,18 @@
 import cv2
 import numpy as np
 
-from .camera import OpenCVCamera
+from src.core.ports.camera import Camera
 
 
-class OpenCVVisualizer:
-    """Утилита визуализации видеопотока через OpenCV."""
+class CameraVisualizer:
+    """Утилита визуализации видеопотока камеры."""
 
-    def __init__(self, camera: OpenCVCamera):
-        """Инициализрует утилиту для визуализации кадров с камеры :class:`OpenCVCamera`.
+    def __init__(self, camera: Camera):
+        """
+        Инициализирует визуализацию видеопотока камеры.
 
         :param camera: Экземпляр камеры для визуализации кадров с её видеопотока.
-        :type camera: OpenCVCamera
+        :type camera: Camera
         """
         self.camera = camera
 
@@ -20,11 +21,12 @@ class OpenCVVisualizer:
         """
         Визуализирует переданный кадр в отдельном окне.
 
-        :param frame: Кадр для визуализации.
+        :param frame: RGB-кадр для визуализации.
         :type frame: numpy.ndarray
         :param winname: Название окна с визуализацией.
         :type winname: str, optional
         """
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         cv2.imshow(winname, frame)
         cv2.waitKey(1)
 
@@ -38,9 +40,6 @@ class OpenCVVisualizer:
         while True:
             try:
                 frame = self.camera.read()
-                if self.camera.convert_to_rgb:
-                    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-
                 self.visualize_frame(frame, winname)
             except KeyboardInterrupt:
                 break

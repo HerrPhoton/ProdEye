@@ -1,5 +1,5 @@
 from .mock import MockDetector
-from .yolo.detector import YOLODetector
+from .yolo import YOLODetector
 
 __all__ = [
     "MockDetector",

@@ -9,8 +9,14 @@ class YOLODetector:
     """Детектор объектов на базе YOLO."""
 
     def __init__(self, config: YOLODetectorConfig):
+        """
+        Инициализирует детектор на базе YOLO.
+
+        :param config: Конфигурация детектора YOLO.
+        :type config: YOLODetectorConfig
+        """
         self.model = YOLO(config.weights_path)
-        self.class_ids = list(config.classes)
+        self.class_ids = list(config.classes.keys())
         self.conf_threshold = config.confidence_threshold
         self.iou_threshold = config.iou_threshold
         self.device = config.device

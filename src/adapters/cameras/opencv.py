@@ -11,6 +11,12 @@ class OpenCVCamera:
     """Адаптер камеры на базе OpenCV."""
 
     def __init__(self, config: OpenCVCameraConfig):
+        """
+        Инициализирует камеру на базе OpenCV.
+
+        :param config: Конфигурация камеры OpenCV.
+        :type config: OpenCVCameraConfig
+        """
         self.source = config.source
         self.width = config.width
         self.height = config.height
@@ -23,6 +29,8 @@ class OpenCVCamera:
     def open(self) -> None:
         """
         Выполняет подключение к источнику видео.
+        Если указаны параметры :attr:`width`, :attr:`height` или :attr:`fps`,
+        то драйвер выбирает ближайшее поддерживаемое разрешение и FPS.
 
         :raises CameraOpenError: При ошибке подключения к источнику видео.
         """

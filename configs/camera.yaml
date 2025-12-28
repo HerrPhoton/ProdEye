@@ -11,8 +11,12 @@ convert_to_rgb: true
 
 # type: mock
 
-# frames_dir: darasets/processed/v1/train/images/
+# source:
+#   type: video # video | dir
+#   path: datasets/video/sample.mp4
+
 # resolution:
 #   width: 640
 #   height: 320
+
 # fps: 30

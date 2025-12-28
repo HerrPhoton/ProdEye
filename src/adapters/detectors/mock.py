@@ -10,6 +10,12 @@ class MockDetector:
     """Моковый детектор объектов."""
 
     def __init__(self, config: MockDetectorConfig):
+        """
+        Иницализирует моковый детектор.
+
+        :param config: Инициализирует моковый детектор.
+        :type config: MockDetectorConfig
+        """
         self.class_ids = config.class_ids
         self.confidence_range = config.confidence_range
         self.detections_num_range = config.detections_num_range
