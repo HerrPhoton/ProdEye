@@ -27,12 +27,12 @@ class OpenCVCameraConfig:
 
 def parse(raw: dict[str, Any]) -> OpenCVCameraConfig:
     """
-    Создает экземпляр конфига камеры :class:`OpenCVCameraConfig`
+    Создает экземпляр конфигурации камеры :class:`OpenCVCameraConfig`
     на основе переданного словаря.
 
-    :param raw: Словарь с параметрами для конфига.
+    :param raw: Словарь с параметрами для конфигурации.
     :type raw: dict[str, Any]
-    :return: Экземпляр конфига, инициализированный параметрами из словаря.
+    :return: Экземпляр конфигурации, инициализированный параметрами из словаря.
     :rtype: OpenCVCameraConfig
     """
     resolution = raw.get("resolution", {})

@@ -22,12 +22,12 @@ class MockDetectorConfig:
 
 def parse(raw: dict[str, Any]) -> MockDetectorConfig:
     """
-    Создает экземпляр конфига мокового детектора :class:`MockDetectorConfig`
+    Создает экземпляр конфигурации мокового детектора :class:`MockDetectorConfig`
     на основе переданного словаря.
 
-    :param raw: Словарь с параметрами для конфига.
+    :param raw: Словарь с параметрами для конфигурации.
     :type raw: dict[str, Any]
-    :return: Экземпляр конфига, инициализированный параметрами из словаря.
+    :return: Экземпляр конфигурации, инициализированный параметрами из словаря.
     :rtype: MockDetectorConfig
     """
     return MockDetectorConfig(

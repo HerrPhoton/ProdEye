@@ -1,6 +1,6 @@
 from typing import Protocol, runtime_checkable
 
-from ..dto import CheckoutRequest
+from src.core.dto import CheckoutRequest
 
 
 @runtime_checkable

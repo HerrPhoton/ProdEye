@@ -2,7 +2,7 @@ from typing import Protocol, runtime_checkable
 
 import numpy as np
 
-from ..dto import Detection
+from src.core.dto import Detection
 
 
 @runtime_checkable

@@ -55,12 +55,12 @@ class MockCameraConfig:
 
 def parse(raw: dict[str, Any]) -> MockCameraConfig:
     """
-    Создает экземпляр конфига моковой камеры :class:`MockCameraConfig`
+    Создает экземпляр конфигурации моковой камеры :class:`MockCameraConfig`
     на основе переданного словаря.
 
-    :param raw: Словарь с параметрами для конфига.
+    :param raw: Словарь с параметрами для конфигурации.
     :type raw: dict[str, Any]
-    :return: Экземпляр конфига, инициализированный параметрами из словаря.
+    :return: Экземпляр конфигурации, инициализированный параметрами из словаря.
     :rtype: MockCameraConfig
     """
     source_raw = raw.get("source", {})

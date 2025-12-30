@@ -1,6 +1,6 @@
 from typing import Protocol, runtime_checkable
 
-from ..dto import VisualCheckResult
+from src.core.dto import VisualCheckResult
 
 
 @runtime_checkable

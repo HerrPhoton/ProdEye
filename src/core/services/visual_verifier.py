@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
 
-from ..dto import Detection, CheckoutRequest, VisualCheckResult
+from src.core.dto import Detection, CheckoutRequest, VisualCheckResult
 
 
 class VisualVerifier(ABC):
