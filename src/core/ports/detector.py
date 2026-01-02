@@ -19,3 +19,11 @@ class Detector(Protocol):
         :rtype: list[Detection]
         """
         pass
+
+    def get_classes(self) -> dict[int, str]:
+        """
+        Возвращает словарь классов с их названиями.
+
+        :return: Словарь вида``{class_id: label}``.
+        :rtype: dict[int, str]
+        """

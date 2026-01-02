@@ -16,7 +16,7 @@ class MockDetector:
         :param config: Инициализирует моковый детектор.
         :type config: MockDetectorConfig
         """
-        self.class_ids = config.class_ids
+        self.classes = config.classes
         self.confidence_range = config.confidence_range
         self.detections_num_range = config.detections_num_range
 
@@ -34,12 +34,21 @@ class MockDetector:
 
         return [
             Detection(
-                class_id=random.choice(self.class_ids),
+                class_id=random.choice(list(self.classes.keys())),
                 confidence=random.uniform(*self.confidence_range),
                 bbox=self._random_bbox(w, h),
             )
             for _ in range(detections_num)
         ]
+
+    def get_classes(self) -> dict[int, str]:
+        """
+        Возвращает словарь классов с их названиями.
+
+        :return: Словарь вида``{class_id: label}``.
+        :rtype: dict[int, str]
+        """
+        return self.classes
 
     @staticmethod
     def _random_bbox(width: int, height: int) -> tuple[int, int, int, int]:

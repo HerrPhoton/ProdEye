@@ -16,7 +16,7 @@ class YOLODetector:
         :type config: YOLODetectorConfig
         """
         self.model = YOLO(config.weights_path)
-        self.class_ids = list(config.classes.keys())
+        self.classes = config.classes
         self.conf_threshold = config.confidence_threshold
         self.iou_threshold = config.iou_threshold
         self.device = config.device
@@ -59,3 +59,12 @@ class YOLODetector:
                 )
 
         return detections
+
+    def get_classes(self) -> dict[int, str]:
+        """
+        Возвращает словарь классов с их названиями.
+
+        :return: Словарь вида``{class_id: label}``.
+        :rtype: dict[int, str]
+        """
+        return self.classes
