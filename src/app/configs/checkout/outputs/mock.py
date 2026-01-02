@@ -9,10 +9,10 @@ class MockCheckoutOutputConfig:
     Параметры инициализации моковых результатов для кассы самообслуживания.
 
     :var results: Список моковых результатов для кассы, где один запрос вида
-        ``{is_match: bool, confidence: float | None, detected_label: str | None}``.
-    :vartype results: Iterable[Mapping[str, str | float]]
+        ``{status: match | mismatch | pending, confidence: float | None, detected_label: str | None}``.
+    :vartype results: Iterable[Mapping[str, Any]]
     """
-    results: Iterable[Mapping[str, str | float]]
+    results: Iterable[Mapping[str, Any]]
 
 
 def parse(raw: dict[str, Any]) -> MockCheckoutOutputConfig:
