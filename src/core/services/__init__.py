@@ -1,4 +1,4 @@
-from .visual_verifier import VisualVerifier
+from .verifier import VisualVerifier
 
 __all__ = [
     "VisualVerifier",

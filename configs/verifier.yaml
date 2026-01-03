@@ -1,0 +1,27 @@
+type: windowed
+
+window_size: 0.5
+
+thresholds:
+  confidence: 0.5
+  detections: 1
+
+
+# type: mock
+
+# results:
+#   - status: pending
+
+#   - status: pending
+
+#   - status: match
+#     confidence: 0.92
+#     detected_label: apple
+
+#   - status: mismatch
+
+#   - status: mismatch
+#     confidence: 0.76
+
+#   - status: match
+#     detected_label: grape
