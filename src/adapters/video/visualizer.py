@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 import cv2
 import numpy as np
 
@@ -30,18 +32,30 @@ class CameraVisualizer:
         cv2.imshow(winname, frame)
         cv2.waitKey(1)
 
-    def visualize_stream(self, winname: str = "Video stream") -> None:
+    def visualize_stream(
+        self,
+        winname: str = "Video stream",
+        frame_transform: Callable[[np.ndarray], np.ndarray] | None = None,
+    ) -> None:
         """
         Визуализирует подключенный видеопоток в отдельном окне.
 
         :param winname: Название окна с визуализацией.
         :type winname: str, optional
+        :param frame_transform: Обработчик кадра, применяемый перед визуализацией.
+        :type frame_transform: Callable[[numpy.ndarray], numpy.ndarray], optional
         """
-        while True:
-            try:
+        try:
+            while True:
                 frame = self.camera.read()
-                self.visualize_frame(frame, winname)
-            except KeyboardInterrupt:
-                break
+                if frame_transform is not None:
+                    frame = frame_transform(frame)
 
-        self.camera.close()
+                self.visualize_frame(frame, winname)
+
+        except KeyboardInterrupt:
+            pass
+
+        finally:
+            self.camera.close()
+            cv2.destroyAllWindows()
