@@ -1,24 +1,24 @@
-type: mock
+type: ui
 
-results:
-  - status: match
-    confidence: 0.95
-    detected_label: "apple"
+# type: mock
 
-  - status: match
-    confidence: 0.64
-    detected_label: "banana"
+# results:
+#   - status: match
+#     confidence: 0.95
+#     detected_label: "apple"
 
-  - status: mismatch
-    confidence: 0.87
-    detected_label: "grape"
+#   - status: match
+#     confidence: 0.64
+#     detected_label: "banana"
 
-  - status: match
-    confidence: 0.87
+#   - status: mismatch
+#     confidence: 0.87
+#     detected_label: "grape"
 
-  - status: mismatch
-    detected_label: "orange"
+#   - status: match
+#     confidence: 0.87
 
-  - status: pending
+#   - status: mismatch
+#     detected_label: "orange"
 
-# type: ui
+#   - status: pending

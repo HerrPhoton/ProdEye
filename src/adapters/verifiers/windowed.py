@@ -58,7 +58,6 @@ class WindowedVisualVerifier(VisualVerifier):
 
         self._buffer: deque[TimedDetections] = deque()
         self._active_request: CheckoutRequest | None = None
-        self._request_start_ts: float | None = None
 
     def verify(
         self,
@@ -86,7 +85,7 @@ class WindowedVisualVerifier(VisualVerifier):
 
         # Начать новую сессию при новом запросе от кассы
         if self._is_new_request(request):
-            self._start_new_session(request, now)
+            self._start_new_session(request)
 
         # Добавить детекции текущего кадра
         self._buffer.append(
@@ -124,27 +123,27 @@ class WindowedVisualVerifier(VisualVerifier):
 
     def _is_new_request(self, request: CheckoutRequest) -> bool:
         """
-        Проверяет, является ли запрос новым.
+        Проверяет, является ли запрос от кассы новым.
 
         :param request: Запрос для проверки.
         :type request: CheckoutRequest
         :return: ``True``, если запрос новый; ``False`` - иначе.
         :rtype: bool
         """
-        return self._active_request != request
+        if self._active_request is None:
+            return True
 
-    def _start_new_session(self, request: CheckoutRequest, now: float) -> None:
+        return self._active_request.timestamp != request.timestamp
+
+    def _start_new_session(self, request: CheckoutRequest) -> None:
         """
         Инициализирует новую сесиию при новом запросе.
         Очищает буфер детекций от прошлых запросов.
 
         :param request: Новый запрос.
         :type request: CheckoutRequest
-        :param now: Временной шаг запроса.
-        :type now: float
         """
         self._active_request = request
-        self._request_start_ts = now
         self._buffer.clear()
 
     def _window_elapsed(self, now: float) -> bool:
@@ -157,12 +156,7 @@ class WindowedVisualVerifier(VisualVerifier):
         :return: ``True``, если прошло времени больше, чем :attr:`window_size`; ``False`` - иначе.
         :rtype: bool
         """
-        if self._request_start_ts is None:
-            raise ValueError(
-                "The initial time of the _request_start_ts request is not set."
-            )
-
-        return (now - self._request_start_ts) >= self.window_size
+        return (now - self._active_request.timestamp) >= self.window_size
 
     def _drop_expired(self, now: float) -> None:
         """

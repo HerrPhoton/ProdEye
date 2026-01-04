@@ -8,5 +8,8 @@ class CheckoutRequest:
 
     :var label: Название товара.
     :vartype label: str
+    :var timestamp: Временной шаг запроса.
+    :vartype timestamp: float
     """
     label: str
+    timestamp: float
