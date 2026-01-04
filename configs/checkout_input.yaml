@@ -1,13 +1,10 @@
 type: mock
 
 requests:
-  - sku: "0001"
-    label: "apple"
+    - label: "apple"
 
-  - sku: "0002"
-    label: "banana"
+    - label: "banana"
 
-  - sku: "0003"
-    label: "orange"
+    - label: "orange"
 
 # type: ui
