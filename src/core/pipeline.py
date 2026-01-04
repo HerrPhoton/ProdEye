@@ -1,3 +1,4 @@
+from .dto import CheckoutRequest, VisualCheckStatus
 from .ports import Camera, Detector, Pipeline, CheckoutInput, CheckoutOutput
 from .services import VisualVerifier
 
@@ -18,10 +19,27 @@ class VisualVerificationPipeline(Pipeline):
         self.checkout_input = checkout_input
         self.checkout_output = checkout_output
 
+        self._active_request: CheckoutRequest | None = None
+
     def run_once(self) -> None:
-        request = self.checkout_input.get_request()
+        """
+        Выполняет один цикл визуальной проверки.
+
+        Открывает новую сессию, если нет активного запроса от кассы.
+        Закрывает активную сессию, если верификатор вернул финальный результат проверки.
+        """
+        # Открытие сессии, если нет активного запроса
+        if self._active_request is None:
+            self._active_request = self.checkout_input.get_request()
+
+        # Детекция товаров
         frame = self.camera.read()
         detections = self.detector.detect(frame)
 
-        result = self.verifier.verify(detections, request)
+        # Визуальная проверка и отправка результата
+        result = self.verifier.verify(detections, self._active_request)
         self.checkout_output.send_result(result)
+
+        # Закрытие сессии при финальном результате
+        if result.status != VisualCheckStatus.PENDING:
+            self._active_request = None
