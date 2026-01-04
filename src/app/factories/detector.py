@@ -1,6 +1,5 @@
 from typing import TypeAlias
 
-from src.adapters.detectors import MockDetector, YOLODetector
 from src.core.ports.detector import Detector
 from src.app.configs.detectors import MockDetectorConfig, YOLODetectorConfig
 
@@ -18,9 +17,11 @@ def build_detector(config: DetectorConfig) -> Detector:
     :rtype: Detector
     """
     if isinstance(config, MockDetectorConfig):
+        from src.adapters.detectors.mock import MockDetector
         return MockDetector(config)
 
     if isinstance(config, YOLODetectorConfig):
+        from src.adapters.detectors.yolo import YOLODetector
         return YOLODetector(config)
 
     raise TypeError(

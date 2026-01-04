@@ -1,10 +1,9 @@
 from typing import TypeAlias
 
 from src.core.services import VisualVerifier
-from src.adapters.verifiers import MockVisualVerifier, WindowedVisualVerifier
-from src.app.configs.detectors import MockDetectorConfig, YOLODetectorConfig
+from src.app.configs.verifiers import MockVerifierConfig, WindowedVerifierConfig
 
-VerifierConfig: TypeAlias = MockVisualVerifier | WindowedVisualVerifier
+VerifierConfig: TypeAlias = MockVerifierConfig | WindowedVerifierConfig
 
 def build_verifier(
     config: VerifierConfig,
@@ -24,18 +23,20 @@ def build_verifier(
     :return: Экзепляр верификатора, инициализированный конфигурацией
     :rtype: VisualVerifier
     """
-    if isinstance(config, MockDetectorConfig):
+    if isinstance(config, MockVerifierConfig):
+        from src.adapters.verifiers.mock import MockVisualVerifier
         return MockVisualVerifier(config)
 
-    if isinstance(config, YOLODetectorConfig):
+    if isinstance(config, WindowedVerifierConfig):
+        from src.adapters.verifiers.windowed import WindowedVisualVerifier
+
         if classes is None:
             raise ValueError(
                 "WindowedVisualVerifier requires 'classes'"
             )
-
         return WindowedVisualVerifier(config, classes)
 
     raise TypeError(
         f"Invalid configuration type: {type(config)}. "
-        f"Allowed: MockVisualVerifier, WindowedVisualVerifier."
+        f"Allowed: MockVerifierConfig, WindowedVerifierConfig."
     )

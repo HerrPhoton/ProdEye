@@ -1,6 +1,5 @@
 from typing import TypeAlias
 
-from src.adapters.cameras import MockCamera, OpenCVCamera
 from src.core.ports.camera import Camera
 from src.app.configs.cameras import MockCameraConfig, OpenCVCameraConfig
 
@@ -18,9 +17,11 @@ def build_camera(config: CameraConfig) -> Camera:
     :rtype: Camera
     """
     if isinstance(config, MockCameraConfig):
+        from src.adapters.cameras.mock import MockCamera
         return MockCamera(config)
 
     if isinstance(config, OpenCVCameraConfig):
+        from src.adapters.cameras.opencv import OpenCVCamera
         return OpenCVCamera(config)
 
     raise TypeError(

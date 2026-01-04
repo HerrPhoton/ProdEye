@@ -1,10 +1,9 @@
 from typing import TypeAlias
 
 from src.core.ports import CheckoutInput
-from src.adapters.checkout import UICheckoutInput, MockCheckoutInput
 from src.app.configs.checkout import UICheckoutInputConfig, MockCheckoutInputConfig
 
-CheckoutInputConfig: TypeAlias = MockCheckoutInput | UICheckoutInput
+CheckoutInputConfig: TypeAlias = MockCheckoutInputConfig | UICheckoutInputConfig
 
 def build_checkout_input(config: CheckoutInputConfig) -> CheckoutInput:
     """
@@ -18,9 +17,11 @@ def build_checkout_input(config: CheckoutInputConfig) -> CheckoutInput:
     :rtype: CheckoutInput
     """
     if isinstance(config, MockCheckoutInputConfig):
+        from src.adapters.checkout.inputs.mock import MockCheckoutInput
         return MockCheckoutInput(config)
 
     if isinstance(config, UICheckoutInputConfig):
+        from src.adapters.checkout.inputs.ui import UICheckoutInput
         return UICheckoutInput(config)
 
     raise TypeError(
