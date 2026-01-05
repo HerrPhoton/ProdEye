@@ -1,5 +1,6 @@
 from .dto import CheckoutRequest, VisualCheckStatus
 from .ports import Camera, Detector, Pipeline, CheckoutInput, CheckoutOutput
+from .ports import PipelineStepResult
 from .services import VisualVerifier
 
 
@@ -21,12 +22,15 @@ class VisualVerificationPipeline(Pipeline):
 
         self._active_request: CheckoutRequest | None = None
 
-    def run_once(self) -> None:
+    def run_once(self) -> PipelineStepResult:
         """
         Выполняет один цикл визуальной проверки.
 
         Открывает новую сессию, если нет активного запроса от кассы.
         Закрывает активную сессию, если верификатор вернул финальный результат проверки.
+
+        :return: Результат одного шага пайплайна.
+        :rtype: PipelineStepResult
         """
         # Открытие сессии, если нет активного запроса
         if self._active_request is None:
@@ -43,3 +47,9 @@ class VisualVerificationPipeline(Pipeline):
         # Закрытие сессии при финальном результате
         if result.status != VisualCheckStatus.PENDING:
             self._active_request = None
+
+        return PipelineStepResult(
+            frame=frame,
+            detections=detections,
+            result=result,
+        )

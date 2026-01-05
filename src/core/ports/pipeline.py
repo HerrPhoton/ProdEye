@@ -1,4 +1,16 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+
+import numpy as np
+
+from src.core.dto import Detection, VisualCheckResult
+
+
+@dataclass(frozen=True)
+class PipelineStepResult:
+    frame: np.ndarray
+    detections: list[Detection]
+    result: VisualCheckResult
 
 
 class Pipeline(ABC):
@@ -13,6 +25,11 @@ class Pipeline(ABC):
     """
 
     @abstractmethod
-    def run_once(self) -> None:
-        """Выполняет один цикл визуальной проверки."""
+    def run_once(self) -> PipelineStepResult:
+        """
+        Выполняет один цикл визуальной проверки.
+
+        :return: Результат одного шага пайплайна.
+        :rtype: PipelineStepResult
+        """
         raise NotImplementedError
