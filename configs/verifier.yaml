@@ -1,6 +1,6 @@
 type: windowed
 
-window_size: 0.5
+window_size: 10
 
 thresholds:
   confidence: 0.5

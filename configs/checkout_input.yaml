@@ -1,13 +1,13 @@
-type: mock
+type: ui
 
-requests:
-    - label: "apple"
-      timestamp: 1767521105.7700403
+# type: mock
 
-    - label: "banana"
-      timestamp: 1767521106.7700403
+# requests:
+#     - label: "apple"
+#       timestamp: 1767521105.7700403
 
-    - label: "orange"
-      timestamp: 1767521107.7700403
+#     - label: "banana"
+#       timestamp: 1767521106.7700403
 
-# type: ui
+#     - label: "orange"
+#       timestamp: 1767521107.7700403
