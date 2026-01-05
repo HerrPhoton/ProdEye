@@ -3,6 +3,7 @@ import contextlib
 import cv2
 import numpy as np
 
+from src.core.ports import CameraProperties
 from src.exceptions import CameraOpenError, CameraReadError
 from src.app.configs.cameras import OpenCVCameraConfig
 
@@ -83,12 +84,12 @@ class OpenCVCamera:
 
         return frame
 
-    def get_actual_properties(self) -> tuple[int, int, float]:
+    def get_actual_properties(self) -> CameraProperties:
         """
         Возвращает текущие параметры источника видео.
 
         :return: Ширина, высота и FPS.
-        :rtype: tuple[int, int, float]
+        :rtype: CameraProperties
         """
         if not self._is_open:
             self.open()
@@ -97,4 +98,8 @@ class OpenCVCamera:
         height = int(self._cap.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
         fps = float(self._cap.get(cv2.CAP_PROP_FPS) or 0.0)
 
-        return width, height, fps
+        return CameraProperties(
+            width=width,
+            height=height,
+            fps=fps
+        )

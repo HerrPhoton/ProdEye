@@ -1,6 +1,12 @@
-from typing import Protocol, runtime_checkable
+from typing import Protocol, NamedTuple, runtime_checkable
 
 import numpy as np
+
+
+class CameraProperties(NamedTuple):
+    width: int
+    height: int
+    fps: float
 
 
 @runtime_checkable
@@ -24,11 +30,11 @@ class Camera(Protocol):
         """Освобождает ресурсы источника."""
         pass
 
-    def get_actual_properties(self) -> tuple[int, int, float]:
+    def get_actual_properties(self) -> CameraProperties:
         """
         Возвращает фактические параметры видеопотока.
 
         :return: Ширина, высота и FPS.
-        :rtype: tuple[int, int, float]
+        :rtype: CameraProperties
         """
         pass

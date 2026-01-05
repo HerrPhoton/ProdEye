@@ -2,6 +2,7 @@ import time
 
 import numpy as np
 
+from src.core.ports import CameraProperties
 from src.app.configs.cameras import MockCameraConfig
 from src.app.configs.cameras.mock import SourceConfig, VideoSourceConfig
 from src.app.configs.cameras.mock import DirectorySourceConfig
@@ -60,15 +61,19 @@ class MockCamera:
         """Освобождает ресурсы источника."""
         self.source.close()
 
-    def get_actual_properties(self) -> tuple[int, int, float]:
+    def get_actual_properties(self) -> CameraProperties:
         """
         Возвращает параметры мокового видеопотока.
 
         :return: Ширина, высота и FPS.
-        :rtype: tuple[int, int, float]
+        :rtype: CameraProperties
         """
         width, height = self.source.get_resolution()
-        return width, height, self.fps
+        return CameraProperties(
+            width=width,
+            height=height,
+            fps=self.fps
+        )
 
     def _create_source(
         self,

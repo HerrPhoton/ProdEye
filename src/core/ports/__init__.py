@@ -1,4 +1,4 @@
-from .camera import Camera
+from .camera import Camera, CameraProperties
 from .detector import Detector
 from .pipeline import Pipeline
 from .checkout_input import CheckoutInput
@@ -10,4 +10,5 @@ __all__ = [
     "Pipeline",
     "CheckoutInput",
     "CheckoutOutput",
+    "CameraProperties",
 ]
