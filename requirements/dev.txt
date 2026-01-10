@@ -1,13 +1,10 @@
+-r base.txt
+-r ui.txt
 beautifulsoup4==4.14.3
 fiftyone==1.10.0
 icrawler==0.6.10
 natsort==8.4.0
-numpy==2.2.6
-opencv-python==4.12.0.88
 pillow==11.3.0
-PyQt6==6.10.0
-PyYAML==6.0.3
+
 scikit_learn==1.7.2
-tqdm==4.67.1
-ultralytics==8.3.225
 umap-learn==0.5.9.post2

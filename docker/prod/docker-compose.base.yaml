@@ -1,0 +1,18 @@
+services:
+  prodeye:
+    build:
+      context: ../../
+      dockerfile: docker/prod/Dockerfile
+
+    environment:
+      - YOLO_CONFIG_DIR=/app/.config/Ultralytics
+
+    volumes:
+      - ../../configs:/app/configs
+      - ../../weights:/app/weights
+      - ultralytics_config:/app/.config/Ultralytics
+
+    restart: unless-stopped
+
+volumes:
+  ultralytics_config:

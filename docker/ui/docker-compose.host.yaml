@@ -1,0 +1,4 @@
+services:
+  prodeye:
+    devices:
+      - ${VIDEO_DEVICE:-/dev/video0}:/dev/video0

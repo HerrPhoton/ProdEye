@@ -1,0 +1,59 @@
+# --------------------
+# Git
+# --------------------
+.git
+.gitignore
+.pre-commit-config.yaml
+
+# --------------------
+# Python artifacts
+# --------------------
+**/__pycache__/
+**/*.pyc
+.venv/
+
+# --------------------
+# Notebooks
+# --------------------
+notebooks/
+
+# --------------------
+# Weights
+# --------------------
+weights/
+
+# --------------------
+# Configs
+# --------------------
+configs/
+
+# --------------------
+# Logs
+# --------------------
+logs/
+
+# --------------------
+# Assets
+# --------------------
+assets/
+
+# --------------------
+# Training
+# --------------------
+runs/
+datasets/
+src/dataset_tools/
+src/training/
+requirements/train.txt
+requirements/ui.txt
+
+# --------------------
+# UI / Emulator
+# --------------------
+src/app/ui/
+src/ui_main.py
+
+# --------------------
+# Docker
+# --------------------
+docker/

@@ -1,0 +1,3 @@
+services:
+  prodeye:
+    network_mode: host
